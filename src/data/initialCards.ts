@@ -1,0 +1,271 @@
+import { ExpressionCard } from '../types/card';
+import { formatDate, addDays } from '../utils/srs';
+
+const today = formatDate();
+
+export const INITIAL_CARDS: ExpressionCard[] = [
+  {
+    id: 'card-call-it-a-day',
+    expression: 'call it a day',
+    phoneticUs: '/ˌkɔːl ɪt ə ˈdeɪ/',
+    phoneticUk: '/ˌkɔːl ɪt ə ˈdeɪ/',
+    partOfSpeech: '口语习语 / idiom',
+    chineseMeaning: '今天到此为止、收工、结束一天的工作',
+    englishDefinition: 'to stop what you are doing, especially work, because you have done enough or are tired',
+    register: '高频职场口语 / 美剧日常',
+    level: 'B1',
+    nuance:
+      '老外最常用的收工表达之一。强调“今天已经做得够多了，剩下的明天再说”。比干巴巴的 "stop working" 更加地道轻松，充满职场人与朋友之间的体谅和默契。通常在傍晚、会议尾声或遇到卡壳瓶颈时使用。',
+    collocations: [
+      { phrase: "let's call it a day", translation: '我们今天先到这儿吧' },
+      { phrase: 'ready to call it a day', translation: '准备收工了' },
+      { phrase: 'call it a night', translation: '晚间聚会/夜班结束' },
+    ],
+    examples: [
+      {
+        en: "We've been troubleshooting this code for six hours. Let's call it a day and take another look tomorrow.",
+        zh: '我们排查这个代码Bug已经整整6个小时了。今天先收工吧，明天再仔细看。',
+        scene: '💻 程序员团队排障',
+      },
+      {
+        en: "I think we covered all the agenda items for the sprint planning. Shall we call it a day?",
+        zh: '我想冲刺规划会的所有议题都已经过完了。咱们今天就开到这里？',
+        scene: '👔 跨国团队敏捷会议',
+      },
+      {
+        en: "You look exhausted, Sarah. Why don't you call it a day and get some rest?",
+        zh: '莎拉你看起来太疲惫了，不如今天先早点收工回去休息吧？',
+        scene: '☕ 同事关切问候',
+      },
+    ],
+    memoryHook:
+      '字面意思是“把这一刻称作一个完整的一天”。意味着今天的工作量已经配得上称作“一天”了，可以合上电脑走人了！',
+    sentencePrompt:
+      '场景模拟：你在周五傍晚和组员赶完了本周的项目周报，大家都很疲倦，请你作为组织者提议今天收工去聚餐。',
+    sentenceScenarios: [
+      '[职场收工]：周五傍晚赶完本周项目周报，大家都很疲倦，请你作为组织者提议今天收工去聚餐。',
+      '[健身运动]：在健身房已经练了近两个小时，搭档还想再做硬拉，你觉得已达极限，提议今天就练到这里。',
+      '[深夜排障]：团队通宵排查线上服务器 Bug 到凌晨两点，大家精力透支，你提议先睡觉明早再看。',
+      '[备考复习]：在图书馆刷完了一整套模考真题，头脑昏沉，跟同伴说今天复习先告一段落。',
+    ],
+    userSentences: [
+      {
+        id: 'sent-1',
+        sentence: "We finally finished the quarterly presentation, so let's call it a day and grab some beers!",
+        promptScenario: '赶完周报后提议收工',
+        score: 96,
+        status: 'perfect',
+        isGrammaticallyCorrect: true,
+        isCollocationNatural: true,
+        feedback:
+          '非常地道自然的口语造句！"so let\'s call it a day and grab some beers" 搭配非常纯正，完全符合母语者下班后的真实说话习惯。',
+        nativeAlternative:
+          "Now that the quarterly slides are wrapped up, why don't we call it a day and go grab a couple of pints?",
+        alternativeAnalysis:
+          '用 "wrapped up" 和 "why don\'t we" 更增添了松弛感与团队提议的亲和力。',
+        praisePoints: ['动词短语 grab some beers 搭配完美', '时态与标点连贯无瑕'],
+        createdAt: today,
+      },
+    ],
+    tags: ['职场日常', '美剧高频', '高情商沟通'],
+    starred: true,
+    createdAt: today,
+    repetition: 2,
+    intervalDays: 1,
+    easeFactor: 2.5,
+    nextReviewDate: today, // Due today for immediate testing
+    lastReviewedAt: addDays(today, -3),
+    reviewHistory: [],
+    masteryStage: 'learning',
+  },
+  {
+    id: 'card-hit-the-ground-running',
+    expression: 'hit the ground running',
+    phoneticUs: '/hɪt ðə ɡraʊnd ˈrʌnɪŋ/',
+    phoneticUk: '/hɪt ðə ɡraʊnd ˈrʌnɪŋ/',
+    partOfSpeech: '习语短语 / idiom',
+    chineseMeaning: '一上任就迅速投入工作、立刻全力以赴且进展顺利',
+    englishDefinition: 'to start doing something immediately with enthusiasm, confidence, and instant productivity',
+    register: '外企高管面试 / 职场高频',
+    level: 'B2',
+    nuance:
+      '源自伞兵或空降部队落地时迅速奔跑进入战斗的画面。在现代职场中，用来形容一个人“不需要漫长的适应期/培训期，第一天就能直接出成果扛大旗”。面试时用这个词形容自己，老外HR和主管会觉得你执行力爆表。',
+    collocations: [
+      { phrase: 'expect someone to hit the ground running', translation: '指望某人一入职就能独当一面' },
+      { phrase: 'hit the ground running on day one', translation: '从第一天起就快速高效上手' },
+    ],
+    examples: [
+      {
+        en: 'With my prior background in fintech product design, I am confident I can hit the ground running on day one.',
+        zh: '凭借我在金融科技产品设计方面的经验积累，我有信心入职第一天就能立刻上手并产出。',
+        scene: '💼 外企高管终面',
+      },
+      {
+        en: 'The new campaign launches next Monday, so the marketing agency needs to hit the ground running.',
+        zh: '新活动下周一就要上线了，所以这家营销机构必须一接手就全力开跑。',
+        scene: '📈 品牌策略发布',
+      },
+    ],
+    memoryHook:
+      '伞兵双脚一着地（hit the ground）就立刻奔跑（running），毫无迟疑缓冲！形象记忆“落地即冲刺”。',
+    sentencePrompt:
+      '场景模拟：向新上任的项目经理表达你的部门已经做好了准备，随时可以全力推进即将到来的重大版本发布。',
+    sentenceScenarios: [
+      '[外企高管面试]：向面试官自信展示你的行业背景，证明你入职第一天就能迅速独当一面、产出成果。',
+      '[项目紧急接盘]：接管一个延期的老项目，向团队成员表态必须立刻开跑、不能有丝毫迟疑。',
+      '[跨界技能跃迁]：加入全新的业务赛道，虽然业务不同，但你凭借强大的学习力第一周就迅速步入正轨。',
+    ],
+    userSentences: [],
+    tags: ['职场面试', '高管履历', '执行力'],
+    starred: true,
+    createdAt: today,
+    repetition: 1,
+    intervalDays: 2,
+    easeFactor: 2.5,
+    nextReviewDate: today,
+    lastReviewedAt: addDays(today, -2),
+    reviewHistory: [],
+    masteryStage: 'learning',
+  },
+  {
+    id: 'card-play-it-by-ear',
+    expression: 'play it by ear',
+    phoneticUs: '/pleɪ ɪt baɪ ɪər/',
+    phoneticUk: '/pleɪ ɪt baɪ ɪə/',
+    partOfSpeech: '口语习语 / idiom',
+    chineseMeaning: '随机应变、见机行事、走一步看一步',
+    englishDefinition: 'to decide how to deal with a situation as it develops, rather than following a definite pre-made plan',
+    register: '地道日常 / 美剧对话',
+    level: 'B1',
+    nuance:
+      '原指乐手不看乐谱、仅凭听觉和感觉弹奏乐器。日常中表示“现在先不把计划定死，到时候看具体情况再做决定”。比直接说 "we don\'t have a plan" 或 "it depends" 要从容、优雅且自然得多。',
+    collocations: [
+      { phrase: "let's just play it by ear", translation: '咱们先随机应变吧' },
+      { phrase: 'decide to play it by ear', translation: '决定视情况而定' },
+    ],
+    examples: [
+      {
+        en: "We don't know yet if the client will accept the initial proposal, so let's just play it by ear during the pitch.",
+        zh: '我们现在还吃不准客户是否接受首轮方案，所以提案时咱们先看现场反应随机应变。',
+        scene: '📊 客户方案竞标',
+      },
+      {
+        en: "The weather forecast says it might rain this Sunday. Should we book the outdoor picnic or play it by ear?",
+        zh: '天气预报说这周日可能会下雨，咱们是提前订好户外野餐还是看天气见机行事？',
+        scene: '⛺ 周末聚会安排',
+      },
+    ],
+    memoryHook: '不看谱子，靠耳朵（by ear）听着感觉弹（play），就是不墨守成规、随时变通！',
+    sentencePrompt: '场景模拟：朋友问你周末要不要去某家网红餐厅，你因为不确定加班时间，想告诉他到时候视情况再定。',
+    sentenceScenarios: [
+      '[朋友聚餐约会]：朋友问你周末要不要去某家网红餐厅，你因为不确定加班时间，想告诉他到时候视情况再定。',
+      '[商业方案竞标]：首轮提案还不清楚客户的具体预算和偏好，你向搭档提议竞标现场先看对方反应随机应变。',
+      '[户外旅行露营]：预报周末可能有阵雨，同伴问要不要提前取消露营，你建议不用把计划定死，看天气见机行事。',
+    ],
+    userSentences: [],
+    tags: ['美剧高频', '日常社交', '口语神仙词'],
+    starred: false,
+    createdAt: today,
+    repetition: 0,
+    intervalDays: 1,
+    easeFactor: 2.5,
+    nextReviewDate: today,
+    lastReviewedAt: null,
+    reviewHistory: [],
+    masteryStage: 'new',
+  },
+  {
+    id: 'card-silver-lining',
+    expression: 'silver lining',
+    phoneticUs: '/ˈsɪlvər ˈlaɪnɪŋ/',
+    phoneticUk: '/ˈsɪlvə ˈlaɪnɪŋ/',
+    partOfSpeech: '名词短语 / noun phrase',
+    chineseMeaning: '（困境中的）一线希望、好的一面、乌云背后的银边',
+    englishDefinition: 'a positive or hopeful aspect in an otherwise negative, difficult, or unpleasant situation',
+    register: '深度交流 / 情感共情 / 文学修辞',
+    level: 'B2',
+    nuance:
+      '源自著名谚语 "Every cloud has a silver lining"（每朵乌云边缘都有一线银白的光芒）。当发生不顺利或挫折时，用来点出其中积极有益的方面。在安慰人、做危机总结或演讲时极具感染力。',
+    collocations: [
+      { phrase: 'find the silver lining', translation: '在逆境中找到积极的一面' },
+      { phrase: 'a silver lining in the crisis', translation: '危机中的转机' },
+    ],
+    examples: [
+      {
+        en: 'Losing that old contract was devastating, but the silver lining was that it forced us to pivot to AI solutions.',
+        zh: '丢掉那份旧订单确实令人受挫，但塞翁失马的是，它迫使我们全力转型做AI解决方案。',
+        scene: '🚀 创业团队复盘',
+      },
+      {
+        en: 'The flight was delayed for four hours, but the silver lining was getting to finish reading my favorite novel.',
+        zh: '航班延误了四个小时，但好在让我一口气读完了心爱的小说。',
+        scene: '✈️ 机场旅途经历',
+      },
+    ],
+    memoryHook: '想象暴风雨将至乌云密布，但在太阳的照耀下，乌云最边缘镶上了一条闪烁的银色线条！',
+    sentencePrompt: '场景模拟：讲述一次你经历过的计划泡汤或失败经历，但最终意外收获了新的技能或顿悟。',
+    sentenceScenarios: [
+      '[商业失落转机]：丢掉了一份大客户合同，但塞翁失马的是，这正好迫使团队全面转型押注更有前景的 AI 核心业务。',
+      '[旅途波折收获]：航班因雷雨意外延误了4小时，但好的一面是让你心无旁骛读完了心仪已久的好书。',
+      '[求职挫折反思]：面试被梦想大厂拒了，但积极的一面是通过这次深度技术面，彻底摸清了自己在架构上的短板。',
+    ],
+    userSentences: [],
+    tags: ['情感沟通', '哲思表达', '高级写作'],
+    starred: true,
+    createdAt: today,
+    repetition: 3,
+    intervalDays: 4,
+    easeFactor: 2.6,
+    nextReviewDate: addDays(today, 2),
+    lastReviewedAt: addDays(today, -2),
+    reviewHistory: [],
+    masteryStage: 'reviewing',
+  },
+  {
+    id: 'card-touch-base',
+    expression: 'touch base',
+    phoneticUs: '/tʌtʃ beɪs/',
+    phoneticUk: '/tʌtʃ beɪs/',
+    partOfSpeech: '动词短语 / phrasal verb',
+    chineseMeaning: '碰个头、简短沟通联系、对接一下进展',
+    englishDefinition: 'to briefly talk with or communicate with someone to update each other or check on progress',
+    register: '外企白领必备 / 商务日常',
+    level: 'B1',
+    nuance:
+      '棒球术语（跑垒员触碰垒包以确认安全）。在欧美职场中被极高频地使用，通常指“简短、非正式的对齐交流”，而不是开很严肃的正式长会。比如：发一封邮件问对方周三下午能否花5分钟同步一下进度。',
+    collocations: [
+      { phrase: 'touch base with someone', translation: '和某人简短对齐沟通' },
+      { phrase: 'just touching base to see...', translation: '只是来打个招呼同步一下...' },
+    ],
+    examples: [
+      {
+        en: "I just wanted to touch base with you regarding the budget approvals before our client call tomorrow.",
+        zh: '在明天见客户前，我只是想跟你简短碰一下关于预算审批的事情。',
+        scene: '📧 职场对齐邮件',
+      },
+      {
+        en: "Let's touch base early next week once the survey results come in.",
+        zh: '等问卷调研结果一出来，咱们下周初碰个头。',
+        scene: '👥 项目进展同步',
+      },
+    ],
+    memoryHook: '棒球选手脚踩垒包（base）代表踩准节点，职场上“踩一下节点”就是轻量级同步信息！',
+    sentencePrompt: '场景模拟：给你的客户或协作伙伴发一条信息，想在周四下午花十分钟快速过一下新界面的设计稿。',
+    sentenceScenarios: [
+      '[日常对齐邮件]：给客户发邮件，想在周四下午花十分钟快速过一下新界面的设计稿。',
+      '[跨部门敏捷协作]：大需求评审前，私下找产品经理提前碰个头，保证双方技术与业务认知一致。',
+      '[前同事/人脉维护]：联系过去的老同事或导师，简短叙旧并同步一下彼此最近的职业近况。',
+    ],
+    userSentences: [],
+    tags: ['外企必备', '邮件模版', '高频沟通'],
+    starred: false,
+    createdAt: today,
+    repetition: 4,
+    intervalDays: 15,
+    easeFactor: 2.5,
+    nextReviewDate: addDays(today, 5),
+    lastReviewedAt: addDays(today, -10),
+    reviewHistory: [],
+    masteryStage: 'mastered',
+  },
+];

@@ -1,0 +1,6 @@
+{
+  "name": "LinguaCraft - 地道英语表达与智能复习",
+  "description": "输入英语表达自动生成地道卡片、AI智能造句批改与艾宾浩斯智能定时复习应用",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
