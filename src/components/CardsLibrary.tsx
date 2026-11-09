@@ -47,8 +47,18 @@ export const CardsLibrary: React.FC<CardsLibraryProps> = ({
   >('all');
   const [tagFilter, setTagFilter] = useState<string | null>(null);
 
-  // Collect unique tags
-  const allTags = Array.from(new Set(cards.flatMap((c) => c.tags || [])));
+  // Standardized categories: strictly 日常生活 and 职场
+  const standardTags = ['日常生活', '职场'];
+
+  // Helper to get normalized tag for a card
+  const getCardCategory = (c: ExpressionCard): string => {
+    const reg = (c.register || '').toLowerCase();
+    const tags = (c.tags || []).join(' ').toLowerCase();
+    if (reg.includes('职场') || reg.includes('工作') || reg.includes('商务') || reg.includes('办公') || tags.includes('职场') || tags.includes('工作')) {
+      return '职场';
+    }
+    return '日常生活';
+  };
 
   // Filtered cards
   const filteredCards = cards.filter((card) => {
@@ -58,8 +68,8 @@ export const CardsLibrary: React.FC<CardsLibraryProps> = ({
       card.chineseMeaning.toLowerCase().includes(searchTerm.toLowerCase());
     if (!matchesSearch) return false;
 
-    // Tag filter
-    if (tagFilter && (!card.tags || !card.tags.includes(tagFilter))) {
+    // Tag filter (strictly 日常生活 or 职场)
+    if (tagFilter && getCardCategory(card) !== tagFilter) {
       return false;
     }
 
@@ -420,33 +430,35 @@ export const CardsLibrary: React.FC<CardsLibraryProps> = ({
           </button>
         </div>
 
-        {/* Tag pills */}
-        {allTags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-stone-100 dark:border-stone-800 text-xs">
-            <span className="text-stone-400">标签分类：</span>
-            {tagFilter && (
-              <button
-                onClick={() => setTagFilter(null)}
-                className="text-[11px] px-2 py-0.5 rounded-md bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-stone-200"
-              >
-                ✕ 重置标签
-              </button>
-            )}
-            {allTags.map((tag, idx) => (
+        {/* Tag pills - strictly 日常生活 and 职场 */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-stone-100 dark:border-stone-800 text-xs">
+          <span className="text-stone-400">标签分类：</span>
+          {tagFilter && (
+            <button
+              onClick={() => setTagFilter(null)}
+              className="text-[11px] px-2 py-0.5 rounded-md bg-stone-200 dark:bg-stone-700 text-stone-700 dark:text-stone-200 cursor-pointer"
+            >
+              ✕ 全部标签
+            </button>
+          )}
+          {standardTags.map((tag, idx) => {
+            const count = cards.filter((c) => getCardCategory(c) === tag).length;
+            return (
               <button
                 key={idx}
                 onClick={() => setTagFilter(tag === tagFilter ? null : tag)}
-                className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-colors ${
+                className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-colors cursor-pointer flex items-center space-x-1 ${
                   tagFilter === tag
                     ? 'border-amber-500 bg-amber-50 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 font-semibold'
                     : 'border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:border-amber-300'
                 }`}
               >
-                #{tag}
+                <span>#{tag}</span>
+                <span className="opacity-70 text-[10px]">({count})</span>
               </button>
-            ))}
-          </div>
-        )}
+            );
+          })}
+        </div>
       </div>
 
       {/* Cards Grid */}
@@ -470,6 +482,7 @@ export const CardsLibrary: React.FC<CardsLibraryProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredCards.map((card) => {
             const due = isDue(card.nextReviewDate);
+            const categoryTag = getCardCategory(card);
 
             return (
               <div
@@ -481,7 +494,7 @@ export const CardsLibrary: React.FC<CardsLibraryProps> = ({
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-1.5">
                       <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
-                        {card.register || '日常'}
+                        {categoryTag}
                       </span>
                       {due && (
                         <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 flex items-center space-x-1">

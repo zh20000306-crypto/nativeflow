@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   ArrowRight,
   BookOpen,
+  X,
 } from 'lucide-react';
 import { ExpressionCard } from '../types/card';
 import { CardView } from './CardView';
@@ -45,9 +46,9 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
 
   const LOADING_STEPS = [
     '⚡ 正在提取国际音标 (IPA) 与地道中文释义...',
-    '🎙️ 正在匹配母语者真实生活与职场场景例句...',
-    '💡 正在拆解使用语感 (Nuance) 与助记小技巧...',
-    '✍️ 正在定制针对该表达的情景造句题目...',
+    '🎯 正在精选 2-3 个最高频典型的应用场景与例句...',
+    '💡 正在拆解使用语感 (Nuance) 与高频地道搭配...',
+    '🇬🇧 正在生成柯林斯/牛津级英英双解释义...',
   ];
 
   const handleGenerate = async (exprToAnalyze?: string) => {
@@ -122,21 +123,22 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
         };
       }).filter((c: any) => c.phrase);
 
-      // Defensive normalization for examples
+      // Defensive normalization for examples (including all scenarios & scenarioDescription)
       const normalizedExamples = (Array.isArray(raw.examples) ? raw.examples : []).map((eg: any) => {
         if (typeof eg === 'string') {
           const parenMatch = eg.match(/^(.*?)\s*[\(（](.*?)[\)）]\s*$/);
           if (parenMatch) {
-            return { en: parenMatch[1].trim(), zh: parenMatch[2].trim(), scene: '真实语境' };
+            return { en: parenMatch[1].trim(), zh: parenMatch[2].trim(), scene: '真实语境', scenarioDescription: '' };
           }
-          return { en: eg.trim(), zh: '', scene: '真实语境' };
+          return { en: eg.trim(), zh: '', scene: '真实语境', scenarioDescription: '' };
         }
         return {
           en: eg?.en || eg?.sentence || eg?.english || eg?.example || '',
           zh: eg?.zh || eg?.chinese || eg?.translation || eg?.meaning || '',
-          scene: eg?.scene || eg?.category || eg?.tag || '情景对话',
+          scene: eg?.scene || eg?.category || eg?.tag || '真实语境',
+          scenarioDescription: eg?.scenarioDescription || eg?.context || eg?.description || '',
         };
-      }).filter((e: any) => e.en);
+      }).filter((e: any) => e.en).slice(0, 3);
 
       const newCard: ExpressionCard = {
         id: `card-${Date.now()}`,
@@ -146,7 +148,7 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
         partOfSpeech: raw.partOfSpeech || '短语 / phrase',
         chineseMeaning: raw.chineseMeaning || '',
         englishDefinition: raw.englishDefinition || '',
-        register: raw.register || '日常口语',
+        register: raw.register === '职场' ? '职场' : '日常生活',
         level: raw.level || 'B2',
         nuance: raw.nuance || '该表达在母语者交流中极为常用，能传递精准的语气与色彩。',
         collocations: normalizedCollocations.length > 0 ? normalizedCollocations : [
@@ -166,7 +168,7 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
             ? raw.sentenceScenarios
             : [raw.sentencePrompt || `请在真实场景中用 "${raw.expression || expr}" 写一个句子。`],
         userSentences: [],
-        tags: ['自主录入'],
+        tags: [raw.register === '职场' ? '职场' : '日常生活'],
         starred: false,
         createdAt: today,
         repetition: 0,
@@ -218,16 +220,34 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
           <label className="text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider">
             英语表达 / 单词 / 习语 (English Expression)
           </label>
-          <div className="relative">
+          <div className="relative flex items-center">
             <input
               type="text"
               value={inputExpression}
               onChange={(e) => setInputExpression(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
               placeholder="例如：call it a day, bite the bullet, serendipity..."
-              className="w-full px-4 py-3.5 pr-28 rounded-2xl border border-stone-300 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-800/50 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-base font-serif focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
+              className="w-full px-4 py-3.5 pr-36 rounded-2xl border border-stone-300 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-800/50 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-base font-serif focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
               disabled={isLoading}
             />
+
+            {/* Clear input button */}
+            {inputExpression && !isLoading && (
+              <button
+                type="button"
+                onClick={() => {
+                  setInputExpression('');
+                  setGeneratedCard(null);
+                  setErrorMsg(null);
+                }}
+                className="absolute right-30 p-1.5 rounded-full text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200/60 dark:hover:bg-stone-700/60 transition-colors cursor-pointer"
+                title="清空输入"
+                aria-label="清空输入"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+
             <button
               onClick={() => handleGenerate()}
               disabled={isLoading || !inputExpression.trim()}
@@ -250,14 +270,27 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
           <label className="text-xs text-stone-500 dark:text-stone-400 flex items-center justify-between">
             <span>附加语境说明 (可选，比如你是在哪里看到的、想在什么场合使用)</span>
           </label>
-          <input
-            type="text"
-            value={contextHint}
-            onChange={(e) => setContextHint(e.target.value)}
-            placeholder="例如：在《硅谷》美剧中听到、或者用于下周的外企全英面试开场白..."
-            className="w-full px-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50/30 dark:bg-stone-800/30 text-stone-700 dark:text-stone-300 placeholder-stone-400 text-xs focus:outline-none focus:ring-1 focus:ring-amber-400"
-            disabled={isLoading}
-          />
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              value={contextHint}
+              onChange={(e) => setContextHint(e.target.value)}
+              placeholder="例如：在《硅谷》美剧中听到、或者用于下周的外企全英面试开场白..."
+              className="w-full px-3.5 py-2 pr-9 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50/30 dark:bg-stone-800/30 text-stone-700 dark:text-stone-300 placeholder-stone-400 text-xs focus:outline-none focus:ring-1 focus:ring-amber-400"
+              disabled={isLoading}
+            />
+            {contextHint && !isLoading && (
+              <button
+                type="button"
+                onClick={() => setContextHint('')}
+                className="absolute right-2.5 p-1 rounded-full text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200/60 dark:hover:bg-stone-700/60 transition-colors cursor-pointer"
+                title="清空附加语境"
+                aria-label="清空附加语境"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Quick presets */}

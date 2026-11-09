@@ -8,7 +8,11 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-const apiKey = process.env.GEMINI_API_KEY || "";
+const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || "";
+if (!apiKey) {
+  console.warn("⚠️ Warning: GEMINI_API_KEY is not set in environment variables! AI features will fail until GEMINI_API_KEY is configured.");
+}
+
 const ai = new GoogleGenAI({
   apiKey,
   httpOptions: {
@@ -21,6 +25,8 @@ const ai = new GoogleGenAI({
 // In-memory caches for ultra-fast repeated responses
 const analysisCache = new Map<string, any>();
 const evaluationCache = new Map<string, any>();
+const sentenceWordsCache = new Map<string, any>();
+const ttsCache = new Map<string, string>();
 
 // Candidate models prioritizing currently available & low-latency models
 const CANDIDATE_MODELS = [
@@ -69,6 +75,14 @@ async function generateContentWithRetryAndFallback(params: {
 function parseErrorMessage(error: any): string {
   if (!error) return "AI 批改服务暂时繁忙，请稍后重试";
   let msg = error.message || String(error);
+  if (
+    msg.includes("unregistered callers") ||
+    msg.includes("API Key or other form of API consumer identity") ||
+    msg.includes("without established identity") ||
+    !apiKey
+  ) {
+    return "部署环境缺少 GEMINI_API_KEY。请在 Render 的 Environment 环境变量中添加 GEMINI_API_KEY（值填入你的 Gemini Key）后重新部署。";
+  }
   if (msg.includes("Quota exceeded") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("429")) {
     return "AI 请求频次稍快，请稍等数秒后点击立即重试";
   }
@@ -98,13 +112,13 @@ app.post("/api/analyze-expression", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Missing or invalid expression" });
     }
 
-    const cacheKey = `${expression.toLowerCase().trim()}_${(contextHint || "").toLowerCase().trim()}`;
+    const cacheKey = `v6_topscenes_${expression.toLowerCase().trim()}_${(contextHint || "").toLowerCase().trim()}`;
     if (analysisCache.has(cacheKey)) {
       const cached = analysisCache.get(cacheKey);
       if (
         cached &&
         Array.isArray(cached.examples) &&
-        cached.examples.length > 0 &&
+        cached.examples.length >= 2 &&
         cached.examples[0]?.en &&
         Array.isArray(cached.collocations) &&
         cached.collocations.length > 0 &&
@@ -117,22 +131,24 @@ app.post("/api/analyze-expression", async (req: Request, res: Response) => {
     const prompt = `Analyze this English expression: "${expression}".
 ${contextHint ? `Context hint: ${contextHint}` : ""}
 
-Act as an expert bilingual lexicographer (like the '不背单词' editorial team).
-Return concise, high-impact native analysis in strictly structured JSON:
+Act as an expert bilingual lexicographer (like the '不背单词' & Oxford/Collins editorial team).
+Return comprehensive, high-impact native analysis in strictly structured JSON:
 - expression: cleaned, canonical form
 - phoneticUs: US IPA (e.g. /ˌkɔːl ɪt ə ˈdeɪ/)
 - phoneticUk: UK IPA
-- partOfSpeech: concise category (e.g. "口语习语", "短语动词", "形容词")
+- partOfSpeech: concise category (e.g. "口语习语", "短语动词", "形容词短语")
 - chineseMeaning: accurate, concise Chinese translation (under 15 Chinese characters)
-- englishDefinition: precise, authentic learner-friendly English definition (1 clear sentence, like Oxford/Cambridge dictionary)
-- register: style tag (e.g. "职场高频", "美剧口语", "地道俚语", "学术写作")
+- register: category tag, strictly either "职场" or "日常生活" (choose the single most fitting one)
+- tags: array with either ["职场"] or ["日常生活"]
 - level: CEFR (e.g. "A2", "B1", "B2", "C1", "C2")
 - nuance: 2-3 sentence Chinese explanation of WHEN and WHY native speakers use this expression, tone, emotion, and subtle differences
-- collocations: exactly 2 high-frequency collocations, each MUST be an object with keys "phrase" and "translation", e.g. [{"phrase": "...", "translation": "..."}]
-- examples: exactly 2 authentic, vivid example sentences, each MUST be an object with keys "en", "zh", and "scene", e.g. [{"scene": "职场讨论", "en": "...", "zh": "..."}]
-- memoryHook: 1 memorable mnemonic hook or visual origin
-- sentencePrompt: 1 primary situational sentence-making prompt in Chinese
-- sentenceScenarios: an array of 3 distinct, diverse situational practice prompts in Chinese, each with a scene tag prefix like "[职场会议]：...", "[日常生活]：...", "[旅行/学习]：..."`;
+- collocations: 2-3 high-frequency collocations, each MUST be an object with keys "phrase" and "translation", e.g. [{"phrase": "...", "translation": "..."}]
+- examples: Select and provide 2 to 3 of the MOST TYPICAL and high-frequency application scenarios where native speakers actually use "${expression}" (e.g. 1 workplace/formal communication, 1 daily life/casual conversation, and optionally 1 social/emotional context). Each scenario MUST be an object with:
+  * "scene": specific scene tag in format "[场景类别 / 具体情境]" (e.g. "[外企职场 / 会议推进]", "[日常社交 / 随性闲聊]", "[生活办事 / 突发状况]")
+  * "scenarioDescription": 1 concise sentence in Chinese explaining when/why native speakers use it in this scenario (e.g. "当讨论陷入僵局或时间已晚，体面且具亲和力地提议今天先结束时")
+  * "en": an authentic, natural, spoken/conversational English sentence demonstrating natural usage in that exact scenario
+  * "zh": accurate, natural Chinese translation
+- memoryHook: 1 memorable mnemonic hook or visual origin`;
 
     const response = await generateContentWithRetryAndFallback({
       contents: prompt,
@@ -170,30 +186,42 @@ Return concise, high-impact native analysis in strictly structured JSON:
       ];
     }
 
-    // Normalize examples
+    // Normalize examples with 2-3 most typical application scenarios
     parsed.examples = (Array.isArray(parsed.examples) ? parsed.examples : []).map((eg: any) => {
       if (typeof eg === 'string') {
         const parenMatch = eg.match(/^(.*?)\s*[\(（](.*?)[\)）]\s*$/);
         if (parenMatch) {
-          return { en: parenMatch[1].trim(), zh: parenMatch[2].trim(), scene: '真实语境' };
+          return { en: parenMatch[1].trim(), zh: parenMatch[2].trim(), scene: '真实语境', scenarioDescription: '' };
         }
-        return { en: eg.trim(), zh: '', scene: '真实语境' };
+        return { en: eg.trim(), zh: '', scene: '真实语境', scenarioDescription: '' };
       }
       return {
         en: eg?.en || eg?.sentence || eg?.english || eg?.example || '',
         zh: eg?.zh || eg?.chinese || eg?.translation || eg?.meaning || '',
-        scene: eg?.scene || eg?.category || eg?.tag || '情景对话',
+        scene: eg?.scene || eg?.category || eg?.tag || '真实语境',
+        scenarioDescription: eg?.scenarioDescription || eg?.description || eg?.context || '',
       };
-    }).filter((e: any) => e.en);
+    }).filter((e: any) => e.en).slice(0, 3);
 
     if (parsed.examples.length === 0) {
       parsed.examples = [
         {
-          scene: '日常口语',
+          scene: '[日常社交 / 随性闲聊]',
+          scenarioDescription: '在非正式随性交流中自然运用',
           en: `Native speakers often say "${expression}" in casual conversations.`,
           zh: `母语者常在日常随性对话中使用 "${expression}"。`,
         },
       ];
+    }
+
+    // Ensure register is strictly '职场' or '日常生活'
+    const regStr = String(parsed.register || '').toLowerCase();
+    if (regStr.includes('职场') || regStr.includes('工作') || regStr.includes('商务') || regStr.includes('办公') || regStr.includes('面试')) {
+      parsed.register = '职场';
+      parsed.tags = ['职场'];
+    } else {
+      parsed.register = '日常生活';
+      parsed.tags = ['日常生活'];
     }
 
     // Ensure nuance exists
@@ -201,14 +229,6 @@ Return concise, high-impact native analysis in strictly structured JSON:
       parsed.nuance = `该表达常用于母语者日常高频对话中，相比字面直译更加生动纯正，能够准确传递特定的语气与情感色彩。`;
     }
 
-    // Ensure sentenceScenarios exists
-    if (!parsed.sentenceScenarios || !Array.isArray(parsed.sentenceScenarios) || parsed.sentenceScenarios.length === 0) {
-      parsed.sentenceScenarios = [
-        parsed.sentencePrompt || `请用 "${expression}" 写一句符合你真实工作或生活的句子。`,
-        `[日常闲聊]：在与朋友沟通闲聊的语境下，尝试自然地运用 "${expression}"。`,
-        `[职场沟通]：在工作邮件、会议对齐或工作汇报中，使用 "${expression}"。`,
-      ];
-    }
     analysisCache.set(cacheKey, parsed);
     return res.json(parsed);
   } catch (error: any) {
@@ -252,37 +272,173 @@ Return ONLY a valid JSON object:
   }
 });
 
-// Endpoint: Evaluate user sentence (Fast & Lightweight JSON mode)
+// Endpoint: Deep sentence word-by-word breakdown, phonetics, and contextual definitions
+app.post("/api/analyze-sentence-words", async (req: Request, res: Response) => {
+  try {
+    const { sentence, expression, translationHint } = req.body;
+    if (!sentence || typeof sentence !== "string") {
+      return res.status(400).json({ error: "Missing or invalid sentence" });
+    }
+
+    const cacheKey = `v1_sent_${sentence.toLowerCase().trim()}:::${(expression || "").toLowerCase().trim()}`;
+    if (sentenceWordsCache.has(cacheKey)) {
+      return res.json(sentenceWordsCache.get(cacheKey));
+    }
+
+    const safeSentence = sentence.replace(/"/g, '\\"');
+    const prompt = `Analyze this English sentence for an English language learner:
+Sentence: "${safeSentence}"
+${expression ? `Target Expression: "${expression}"` : ""}
+${translationHint ? `Reference Translation: "${translationHint}"` : ""}
+
+Act as an expert bilingual lexicographer (Oxford/Collins & 不背单词).
+Provide a structured linguistic and phonetic breakdown in strict JSON:
+{
+  "sentence": "${safeSentence}",
+  "translation": "Accurate, natural Chinese translation of this sentence",
+  "tokens": [
+    {
+      "word": "word as appears in sentence",
+      "lemma": "dictionary base form (e.g. troubleshoot)",
+      "phonetic": "US IPA phonetic (e.g. /ˈtrʌbəlˌʃuːtɪŋ/)",
+      "partOfSpeech": "e.g. v. / n. / adj. / phr. / adv.",
+      "meaning": "accurate concise Chinese meaning in THIS specific context",
+      "isTarget": true
+    }
+  ],
+  "keyPhrases": [
+    {
+      "phrase": "e.g. six hours straight",
+      "meaning": "e.g. 连续6个小时整"
+    }
+  ],
+  "grammarBreakdown": "1-2 sentences in Chinese explaining key grammar/sentence structure",
+  "nuanceNote": "1-2 sentences in Chinese explaining why native speakers choose this wording, tone, and practical communicative effect"
+}`;
+
+    const response = await generateContentWithRetryAndFallback({
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+      },
+    });
+
+    const parsed = JSON.parse(response.text || "{}");
+
+    // Defensive formatting
+    if (!Array.isArray(parsed.tokens)) {
+      parsed.tokens = [];
+    }
+    if (!Array.isArray(parsed.keyPhrases)) {
+      parsed.keyPhrases = [];
+    }
+    if (!parsed.translation) {
+      parsed.translation = translationHint || "";
+    }
+
+    sentenceWordsCache.set(cacheKey, parsed);
+    return res.json(parsed);
+  } catch (error: any) {
+    console.error("Error analyzing sentence words:", error);
+    const friendlyError = parseErrorMessage(error);
+    return res.status(503).json({ error: friendlyError });
+  }
+});
+
+// Endpoint: High-fidelity natural AI voice generation (gemini-3.8-flash-lite-tts)
+app.post("/api/tts", async (req: Request, res: Response) => {
+  try {
+    const { text, voice = "Kore" } = req.body;
+    if (!text || typeof text !== "string") {
+      return res.status(400).json({ error: "Missing or invalid text" });
+    }
+
+    const cleanText = text.trim();
+    if (!cleanText) {
+      return res.status(400).json({ error: "Empty text" });
+    }
+
+    const cacheKey = `${voice}_${cleanText.toLowerCase()}`;
+    if (ttsCache.has(cacheKey)) {
+      return res.json({ audio: ttsCache.get(cacheKey), format: "audio/wav" });
+    }
+
+    // Call gemini-3.8-flash-lite-tts with 8s timeout to avoid blocking
+    const response = await withTimeout(
+      ai.models.generateContent({
+        model: "gemini-3.8-flash-lite-tts",
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                text: cleanText,
+                speechMetadata: {
+                  style: "Natural, native American English speaker with authentic conversational intonation, proper pauses, and clear pronunciation",
+                },
+              },
+            ],
+          },
+        ],
+        config: {
+          responseModalities: ["AUDIO"],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: voice || "Kore" },
+            },
+          },
+        },
+      }),
+      8000,
+      "TTS request timed out"
+    );
+
+    const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    if (!base64Audio) {
+      throw new Error("No audio returned from Gemini TTS");
+    }
+
+    ttsCache.set(cacheKey, base64Audio);
+    return res.json({ audio: base64Audio, format: "audio/wav" });
+  } catch (error: any) {
+    console.warn("TTS generation warning (client will use enhanced local voice):", error?.message || error);
+    return res.status(503).json({ error: "TTS service unavailable, use local fallback" });
+  }
+});
+
+// Endpoint: Evaluate user sentence (Free-form, no scenario constraints)
 app.post("/api/evaluate-sentence", async (req: Request, res: Response) => {
   try {
-    const { expression, userSentence, promptScenario } = req.body;
+    const { expression, userSentence } = req.body;
     if (!expression || !userSentence) {
       return res.status(400).json({ error: "Missing expression or userSentence" });
     }
 
-    const cacheKey = `v3_retain_${expression.toLowerCase().trim()}:::${userSentence.toLowerCase().trim()}:::${(promptScenario || "").slice(0, 30)}`;
+    const cacheKey = `v5_free_preserve_${expression.toLowerCase().trim()}:::${userSentence.toLowerCase().trim()}`;
     if (evaluationCache.has(cacheKey)) {
       return res.json(evaluationCache.get(cacheKey));
     }
 
-    const prompt = `You are a supportive, expert native English writing coach.
+    const prompt = `You are a world-class bilingual native English writing coach and editor.
 Target English expression to practice: "${expression}"
-${promptScenario ? `Context scenario: "${promptScenario}"` : ""}
-User's submitted sentence: "${userSentence}"
+User's self-composed sentence: "${userSentence}"
 
-CRITICAL INSTRUCTION - TARGET EXPRESSION MUST BE PRESERVED:
-1. The student is specifically practicing and mastering the target expression: "${expression}".
-2. In "nativeAlternative" (母语者润色版本), YOU MUST KEEP AND USE THE EXACT TARGET EXPRESSION "${expression}" (or its natural grammatical inflections like past tense, gerund, or 3rd-person singular, e.g. "hooked up", "hooking up").
-3. DO NOT REPLACE OR SUBSTITUTE "${expression}" WITH ANY SYNONYM OR ALTERNATIVE WORD!
-   - Example: If target expression is "hook up", DO NOT substitute it with "meet with", "meet", "get together", or "catch up". Your rewrite MUST use "hook up" in a natural, native way!
-   - Example: If target expression is "call it a day", DO NOT substitute it with "finish", "stop working", or "wrap up". Keep "call it a day"!
-   - Example: If target expression is "hit the ground running", DO NOT substitute it with "start immediately" or "take off". Keep "hit the ground running"!
-4. Your "nativeAlternative" should demonstrate how an educated native speaker would construct the sentence around the target expression "${expression}" with superior rhythm, natural collocations, and idiomatic ease.
+TASK:
+The user freely composed their own sentence using "${expression}" WITHOUT ANY pre-imposed scenario prompt or constraint.
+1. Understand the core idea, message, and nuance the user intended to express in their sentence.
+2. Directly evaluate their sentence and how they used "${expression}".
+3. Polish and elevate the user's sentence into an authentic, highly natural native speaker version ("nativeAlternative"), strictly based on what they wrote and the expression used.
+
+CRITICAL INSTRUCTION - TARGET EXPRESSION MUST BE PRESERVED IN REWRITE:
+1. The student is deliberately practicing the target expression: "${expression}".
+2. In "nativeAlternative" (母语者润色版本), YOU MUST KEEP AND USE THE EXACT TARGET EXPRESSION "${expression}" (natural grammatical conjugations like past tense, gerund, or 3rd-person singular are allowed, e.g. "hooked up", "hooking up").
+3. NEVER REPLACE OR SUBSTITUTE "${expression}" WITH ANY SYNONYM (e.g. if the target is "hook up", DO NOT substitute it with "meet with", "meet", "hang out", or "catch up"; if it is "call it a day", DO NOT substitute with "wrap up" or "stop"; if it is "cut corners", DO NOT substitute with "take shortcuts").
+4. Polish and optimize the surrounding syntax, collocations, rhythm, and natural conversational tone to elevate the user's sentence to native level.
 
 Evaluation criteria:
-1. Check if the user used "${expression}" correctly and naturally in this scenario.
-2. Grammar, tense, preposition, and punctuation correctness.
-3. Native conversational flow and tone.
+1. Did the user use "${expression}" correctly according to its authentic meaning?
+2. Grammar, tense, prepositions, and punctuation correctness.
+3. Natural native phrasing, flow, and conciseness.
 
 Respond ONLY with a valid JSON object matching this exact format:
 {
@@ -290,10 +446,10 @@ Respond ONLY with a valid JSON object matching this exact format:
   "status": "perfect",
   "isGrammaticallyCorrect": true,
   "isCollocationNatural": true,
-  "feedback": "2-3 sentences of supportive Chinese coaching feedback explaining strengths, how naturally '${expression}' was used, and any gentle tips",
+  "feedback": "2-3 sentences of supportive Chinese coaching feedback explaining what was expressed well, grammar notes, and how to improve",
   "nativeAlternative": "One authentic, highly natural native speaker rewrite that MUST explicitly keep and use '${expression}'",
-  "alternativeAnalysis": "One concise sentence in Chinese explaining why this polished phrasing of '${expression}' is more idiomatic or native",
-  "praisePoints": ["Brief highlight 1", "Brief highlight 2"]
+  "alternativeAnalysis": "1-2 sentences in Chinese explaining how the sentence was optimized into native flow while preserving '${expression}'",
+  "praisePoints": ["亮点1", "亮点2"]
 }`;
 
     const response = await generateContentWithRetryAndFallback({

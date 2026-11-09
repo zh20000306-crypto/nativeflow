@@ -10,10 +10,9 @@ import {
   BookmarkCheck,
   ChevronLeft,
   ChevronRight,
-  BookOpen,
-  Shuffle,
   History,
   PenTool,
+  BookOpen,
 } from 'lucide-react';
 import { ExpressionCard, SentenceEvaluationResult, UserSentenceRecord } from '../types/card';
 import { speakEnglish } from '../utils/audio';
@@ -31,16 +30,6 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
   onClose,
   onSaveSentence,
 }) => {
-  // Scenarios state
-  const defaultScenarios =
-    card.sentenceScenarios && card.sentenceScenarios.length > 0
-      ? card.sentenceScenarios
-      : [card.sentencePrompt || '请在真实工作或日常语境中写一个地道的句子。'];
-
-  const [scenariosList, setScenariosList] = useState<string[]>(defaultScenarios);
-  const [currentScenarioIdx, setCurrentScenarioIdx] = useState(0);
-  const [isGeneratingExtraScenarios, setIsGeneratingExtraScenarios] = useState(false);
-
   // Input & Evaluation State
   const [userSentence, setUserSentence] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,39 +43,6 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
   const [activeTab, setActiveTab] = useState<'write' | 'history'>('write');
 
   if (!isOpen) return null;
-
-  const currentScenario = scenariosList[currentScenarioIdx] || card.sentencePrompt;
-
-  const handleNextScenario = async () => {
-    if (currentScenarioIdx + 1 < scenariosList.length) {
-      setCurrentScenarioIdx((idx) => idx + 1);
-    } else {
-      // If reached the end of list, cycle back or fetch new ones
-      setCurrentScenarioIdx(0);
-    }
-  };
-
-  const handleFetchExtraScenarios = async () => {
-    setIsGeneratingExtraScenarios(true);
-    try {
-      const res = await fetch('/api/generate-scenarios', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ expression: card.expression }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data.scenarios) && data.scenarios.length > 0) {
-          setScenariosList((prev) => [...prev, ...data.scenarios]);
-          setCurrentScenarioIdx(scenariosList.length); // switch to the first new scenario
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to fetch extra scenarios', e);
-    } finally {
-      setIsGeneratingExtraScenarios(false);
-    }
-  };
 
   const handleInsertPhrase = (phrase: string) => {
     setUserSentence((prev) => {
@@ -109,7 +65,6 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
         body: JSON.stringify({
           expression: card.expression,
           userSentence: userSentence.trim(),
-          promptScenario: currentScenario,
         }),
       });
 
@@ -163,7 +118,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
     const newRecord: UserSentenceRecord = {
       id: `sent-${Date.now()}`,
       sentence: userSentence.trim(),
-      promptScenario: currentScenario,
+      promptScenario: '自主实战造句',
       score: evaluation.score,
       status: evaluation.status,
       isGrammaticallyCorrect: evaluation.isGrammaticallyCorrect,
@@ -185,8 +140,6 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
     setEvaluation(null);
     setHasSaved(false);
     setErrorMsg(null);
-    // Automatically advance to the next scene for fresh practice!
-    handleNextScenario();
   };
 
   const currentHistorySentence = historySentences[historyIdx];
@@ -202,10 +155,10 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
             </div>
             <div>
               <h3 className="font-bold text-stone-900 dark:text-stone-100 text-base">
-                语境实战造句与 AI 批改
+                自主造句实战与 AI 地道润色
               </h3>
               <p className="text-xs text-stone-500 dark:text-stone-400">
-                切换不同场景提示 · 自主造句 · 极速批改 · 保留历史句子
+                自由自主造句 · 无需场景提示约束 · AI 直接基于你的原句与表达优化为纯正母语表达
               </p>
             </div>
           </div>
@@ -285,60 +238,25 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                 </span>
               </div>
 
-              {/* Dynamic Scenario Switcher */}
-              <div className="mt-3 pt-3 border-t border-amber-200/60 dark:border-amber-900/40 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center space-x-1.5 font-bold text-amber-900 dark:text-amber-300">
-                    <BookOpen className="w-3.5 h-3.5" />
-                    <span>
-                      情景提示 ({currentScenarioIdx + 1}/{scenariosList.length})
-                    </span>
-                  </div>
-
-                  <div className="flex items-center space-x-1">
-                    <button
-                      type="button"
-                      onClick={handleNextScenario}
-                      className="px-2 py-1 rounded bg-amber-200/60 hover:bg-amber-200 dark:bg-amber-900/60 dark:hover:bg-amber-900 text-amber-900 dark:text-amber-200 text-[11px] font-semibold flex items-center space-x-1 transition-colors cursor-pointer"
-                      title="切换到下一个情境"
-                    >
-                      <Shuffle className="w-3 h-3" />
-                      <span>换个场景</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={handleFetchExtraScenarios}
-                      disabled={isGeneratingExtraScenarios}
-                      className="px-2 py-1 rounded bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 text-[11px] font-medium transition-colors"
-                      title="AI 生成更多现实场景"
-                    >
-                      {isGeneratingExtraScenarios ? (
-                        <RefreshCw className="w-3 h-3 animate-spin" />
-                      ) : (
-                        <span>+ 生成新场景</span>
-                      )}
-                    </button>
-                  </div>
+              {/* English definition if available */}
+              {card.englishDefinition && (
+                <div className="mt-2 text-xs font-serif italic text-stone-600 dark:text-stone-300">
+                  "{card.englishDefinition}"
                 </div>
-
-                <div className="p-2.5 rounded-lg bg-white/80 dark:bg-stone-900/80 border border-amber-200/50 dark:border-amber-900/30 text-xs sm:text-sm text-stone-800 dark:text-stone-200 font-medium leading-relaxed">
-                  {currentScenario}
-                </div>
-              </div>
+              )}
 
               {/* Quick collocation chips */}
               {card.collocations && card.collocations.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5 items-center">
-                  <span className="text-[11px] text-stone-500 dark:text-stone-400">
-                    推荐搭配：
+                <div className="mt-3 pt-3 border-t border-amber-200/60 dark:border-amber-900/40 flex flex-wrap gap-1.5 items-center">
+                  <span className="text-[11px] font-medium text-stone-500 dark:text-stone-400">
+                    高频搭配：
                   </span>
                   {card.collocations.map((col, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => handleInsertPhrase(col.phrase)}
-                      className="text-xs px-2 py-0.5 rounded bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:border-amber-400 transition-colors"
+                      className="text-xs px-2.5 py-0.5 rounded-lg bg-white/90 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:border-amber-400 hover:text-amber-600 transition-colors cursor-pointer"
                     >
                       + {col.phrase}
                     </button>
@@ -349,33 +267,39 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
 
             {/* Input Form */}
             <form onSubmit={handleEvaluate} className="space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                  你的英语造句 (English Sentence)
-                </label>
-                <div className="flex items-center space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => handleInsertPhrase(card.expression)}
-                    className="text-xs text-amber-600 dark:text-amber-400 hover:underline font-medium"
-                  >
-                    + 插入目标词
-                  </button>
-                  {userSentence && (
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-stone-800 dark:text-stone-200 flex items-center space-x-1.5">
+                    <PenTool className="w-3.5 h-3.5 text-amber-600" />
+                    <span>自由造句实战 (Free Writing)</span>
+                  </label>
+                  <div className="flex items-center space-x-2">
                     <button
                       type="button"
-                      onClick={() => {
-                        setUserSentence('');
-                        setEvaluation(null);
-                        setErrorMsg(null);
-                        setHasSaved(false);
-                      }}
-                      className="text-xs text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
+                      onClick={() => handleInsertPhrase(card.expression)}
+                      className="text-xs text-amber-600 dark:text-amber-400 hover:underline font-medium cursor-pointer"
                     >
-                      清空
+                      + 插入 "{card.expression}"
                     </button>
-                  )}
+                    {userSentence && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserSentence('');
+                          setEvaluation(null);
+                          setErrorMsg(null);
+                          setHasSaved(false);
+                        }}
+                        className="text-xs text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
+                      >
+                        清空
+                      </button>
+                    )}
+                  </div>
                 </div>
+                <p className="text-[11px] text-stone-500 dark:text-stone-400">
+                  请按你想表达的任何想法自由造句。AI 导师将直接基于你的句子与用词，量身润色为地道母语表达。
+                </p>
               </div>
 
               <div className="relative">
@@ -398,7 +322,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                       handleEvaluate(e);
                     }
                   }}
-                  placeholder={`根据上方场景，用 "${card.expression}" 写一句完整地道的英语句子... (支持按 Cmd/Ctrl + Enter 快捷提交)`}
+                  placeholder={`用 "${card.expression}" 自由写下你想说的一句英语... (支持按 Cmd/Ctrl + Enter 快捷提交)`}
                   rows={3}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all font-sans leading-relaxed"
                   disabled={isSubmitting}
@@ -531,10 +455,15 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                 {evaluation.nativeAlternative && (
                   <div className="p-4 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200/70 dark:border-indigo-900/50 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-indigo-900 dark:text-indigo-300 flex items-center space-x-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                        <span>母语者地道润色版本 (Native Polish)</span>
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs font-bold text-indigo-900 dark:text-indigo-300 flex items-center space-x-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                          <span>母语者地道润色 (Native Polish)</span>
+                        </span>
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/70 text-indigo-800 dark:text-indigo-200">
+                          保持使用「{card.expression}」
+                        </span>
+                      </div>
                       <button
                         type="button"
                         onClick={() => speakEnglish(evaluation.nativeAlternative)}
@@ -563,7 +492,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                       className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
                     >
                       <BookmarkCheck className="w-4 h-4" />
-                      <span>保存此场景造句到卡片</span>
+                      <span>保存我的造句到卡片</span>
                     </button>
                   ) : (
                     <div className="flex-1 py-2 px-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-semibold text-center flex items-center justify-center space-x-1">
@@ -576,10 +505,10 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                     type="button"
                     onClick={handleResetForAnother}
                     className="py-2.5 px-4 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-700 dark:text-stone-300 text-sm font-medium flex items-center space-x-1 transition-colors cursor-pointer"
-                    title="换一个场景继续造句"
+                    title="清空当前输入，继续写新句子"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
-                    <span>换个场景再造一句</span>
+                    <span>清空继续造句</span>
                   </button>
                 </div>
               </div>

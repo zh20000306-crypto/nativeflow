@@ -8,6 +8,7 @@ export interface ExampleSentence {
   en: string;
   zh: string;
   scene: string;
+  scenarioDescription?: string;
 }
 
 export interface UserSentenceRecord {
@@ -114,5 +115,23 @@ export interface ComboPracticeRecord {
   nativeAlternative: string;
   alternativeAnalysis: string;
   createdAt: string;
+}
+
+export interface WordTokenAnalysis {
+  word: string;
+  lemma?: string;
+  phonetic?: string;
+  partOfSpeech?: string;
+  meaning: string;
+  isTarget?: boolean;
+}
+
+export interface SentenceAnalysisResult {
+  sentence: string;
+  translation?: string;
+  tokens: WordTokenAnalysis[];
+  keyPhrases?: { phrase: string; phonetic?: string; meaning: string }[];
+  grammarBreakdown?: string;
+  nuanceNote?: string;
 }
 

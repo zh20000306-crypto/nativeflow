@@ -14,9 +14,14 @@ import {
   ChevronLeft,
   ChevronRight,
   TrendingUp,
+  Copy,
+  Check,
+  BookOpen,
 } from 'lucide-react';
 import { ExpressionCard, UserSentenceRecord } from '../types/card';
 import { speakEnglish } from '../utils/audio';
+import { InteractiveExampleSentence } from './InteractiveExampleSentence';
+import { SentenceAnalysisModal } from './SentenceAnalysisModal';
 
 interface CardViewProps {
   card: ExpressionCard;
@@ -41,6 +46,26 @@ export const CardView: React.FC<CardViewProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'details' | 'sentences'>('details');
   const [sentenceIdx, setSentenceIdx] = useState(0);
+  const [copiedExampleIdx, setCopiedExampleIdx] = useState<number | null>(null);
+  const [analysisTarget, setAnalysisTarget] = useState<{
+    sentence: string;
+    translation?: string;
+    expression?: string;
+  } | null>(null);
+
+  const handleOpenAnalysis = (sentence: string, translation?: string, expr?: string) => {
+    setAnalysisTarget({
+      sentence,
+      translation,
+      expression: expr || card.expression,
+    });
+  };
+
+  const handleCopyExample = (text: string, idx: number) => {
+    navigator.clipboard.writeText(text);
+    setCopiedExampleIdx(idx);
+    setTimeout(() => setCopiedExampleIdx(null), 1800);
+  };
 
   return (
     <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200/90 dark:border-stone-800 shadow-xl overflow-hidden transition-all duration-300">
@@ -253,15 +278,20 @@ export const CardView: React.FC<CardViewProps> = ({
             </div>
           )}
 
-          {/* Authentic Real-World Examples */}
+          {/* Core Typical Application Scenarios & Examples */}
           {card.examples && card.examples.length > 0 && (
             <div>
-              <div className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-3 flex items-center space-x-1.5">
-                <Quote className="w-3.5 h-3.5" />
-                <span>原声感真实场景例句 (Context Examples)</span>
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-xs font-bold text-stone-600 dark:text-stone-300 uppercase tracking-wider flex items-center space-x-1.5">
+                  <Quote className="w-3.5 h-3.5 text-amber-500" />
+                  <span>核心典型应用场景与例句 (Core Scenarios)</span>
+                </div>
+                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/50 dark:border-amber-900/40 font-mono">
+                  精选 {Math.min(card.examples.length, 3)} 个高频典型语境
+                </span>
               </div>
               <div className="space-y-3">
-                {card.examples.map((rawEg: any, i: number) => {
+                {card.examples.slice(0, 3).map((rawEg: any, i: number) => {
                   const enText = typeof rawEg === 'string'
                     ? rawEg
                     : (rawEg.en || rawEg.sentence || rawEg.english || rawEg.example || '');
@@ -271,37 +301,24 @@ export const CardView: React.FC<CardViewProps> = ({
                   const sceneTag = typeof rawEg === 'string'
                     ? '真实场景'
                     : (rawEg.scene || rawEg.category || rawEg.tag || '真实场景');
+                  const scenarioDesc = typeof rawEg === 'object'
+                    ? (rawEg.scenarioDescription || rawEg.context || rawEg.description || '')
+                    : '';
+
+                  if (!enText) return null;
 
                   return (
-                    <div
+                    <InteractiveExampleSentence
                       key={i}
-                      className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-800/40 border border-stone-200/60 dark:border-stone-800 hover:bg-stone-100/60 dark:hover:bg-stone-800/70 transition-all space-y-2 group"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-stone-200/70 dark:bg-stone-700/50 text-stone-700 dark:text-stone-300">
-                          {sceneTag}
-                        </span>
-                        {enText && (
-                          <button
-                            type="button"
-                            onClick={() => speakEnglish(enText)}
-                            className="p-1 rounded text-stone-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-white dark:hover:bg-stone-700 transition-colors"
-                            title="朗读此例句"
-                          >
-                            <Volume2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-
-                      <p className="text-sm sm:text-base font-serif text-stone-900 dark:text-stone-100 leading-relaxed font-medium">
-                        {enText}
-                      </p>
-                      {zhText && (
-                        <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-normal">
-                          {zhText}
-                        </p>
-                      )}
-                    </div>
+                      sentence={enText}
+                      translation={zhText}
+                      expression={card.expression}
+                      sceneTag={sceneTag}
+                      scenarioDescription={scenarioDesc}
+                      onOpenAnalysis={handleOpenAnalysis}
+                      onCopy={() => handleCopyExample(enText, i)}
+                      isCopied={copiedExampleIdx === i}
+                    />
                   );
                 })}
               </div>
@@ -400,13 +417,15 @@ export const CardView: React.FC<CardViewProps> = ({
                       : 'border-stone-200 dark:border-stone-800'
                   }`}
                 >
-                  {/* Scenario prompt tag if present */}
-                  {sent.promptScenario && (
-                    <div className="p-2 rounded-lg bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-900/30 text-xs text-amber-900 dark:text-amber-200">
-                      <span className="font-bold">场景语境：</span>
-                      {sent.promptScenario}
-                    </div>
-                  )}
+                  {/* Custom scenario tag if present */}
+                  {sent.promptScenario &&
+                    sent.promptScenario !== '自主实战造句' &&
+                    sent.promptScenario !== '自由造句实战' && (
+                      <div className="p-2 rounded-lg bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-900/30 text-xs text-amber-900 dark:text-amber-200">
+                        <span className="font-bold">造句背景：</span>
+                        {sent.promptScenario}
+                      </div>
+                    )}
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
@@ -417,13 +436,25 @@ export const CardView: React.FC<CardViewProps> = ({
                         {sent.createdAt}
                       </span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => speakEnglish(sent.sentence)}
-                      className="p-1 rounded text-stone-400 hover:text-amber-600"
-                    >
-                      <Volume2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center space-x-1">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenAnalysis(sent.sentence, '', card.expression)}
+                        className="p-1 px-2 rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-600 dark:text-stone-300 text-xs flex items-center space-x-1 cursor-pointer"
+                        title="长按或点击查看词义解析与发音"
+                      >
+                        <BookOpen className="w-3 h-3 text-amber-500" />
+                        <span className="text-[11px]">解析</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => speakEnglish(sent.sentence)}
+                        className="p-1 rounded text-stone-400 hover:text-amber-600"
+                        title="朗读"
+                      >
+                        <Volume2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
 
                   <p className="text-sm font-serif font-medium text-stone-900 dark:text-stone-100">
@@ -438,9 +469,30 @@ export const CardView: React.FC<CardViewProps> = ({
                   </div>
 
                   {sent.nativeAlternative && (
-                    <div className="text-xs text-indigo-900 dark:text-indigo-300 bg-indigo-50/70 dark:bg-indigo-950/40 p-3 rounded-xl border border-indigo-200/60 dark:border-indigo-900/40">
-                      <div className="font-semibold text-indigo-700 dark:text-indigo-300 mb-0.5">
-                        母语者润色版本：
+                    <div className="text-xs text-indigo-900 dark:text-indigo-300 bg-indigo-50/70 dark:bg-indigo-950/40 p-3 rounded-xl border border-indigo-200/60 dark:border-indigo-900/40 space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <div className="font-semibold text-indigo-700 dark:text-indigo-300">
+                          母语者润色版本：
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenAnalysis(sent.nativeAlternative!, '', card.expression)}
+                            className="p-1 px-1.5 rounded bg-white/70 dark:bg-indigo-900/60 hover:bg-white text-indigo-700 dark:text-indigo-300 text-[11px] flex items-center space-x-1 cursor-pointer"
+                            title="逐词解析与发音"
+                          >
+                            <BookOpen className="w-3 h-3" />
+                            <span>解析</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => speakEnglish(sent.nativeAlternative!)}
+                            className="p-1 rounded text-indigo-600 dark:text-indigo-400 hover:text-indigo-900"
+                            title="朗读母语版本"
+                          >
+                            <Volume2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                       <p className="font-serif italic font-medium">
                         "{sent.nativeAlternative}"
@@ -477,6 +529,15 @@ export const CardView: React.FC<CardViewProps> = ({
           </button>
         </div>
       )}
+
+      {/* Sentence Deep Breakdown Modal (Triggered on long-press or click) */}
+      <SentenceAnalysisModal
+        isOpen={Boolean(analysisTarget)}
+        onClose={() => setAnalysisTarget(null)}
+        sentence={analysisTarget?.sentence || ''}
+        translation={analysisTarget?.translation}
+        expression={analysisTarget?.expression || card.expression}
+      />
     </div>
   );
 };

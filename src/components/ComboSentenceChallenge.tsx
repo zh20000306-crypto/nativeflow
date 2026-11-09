@@ -9,24 +9,21 @@ import {
   Check,
   Send,
   RefreshCw,
-  Lightbulb,
-  BookOpen,
-  ArrowRight,
   BookmarkCheck,
   Layers,
-  HelpCircle,
   Award,
-  ChevronRight,
-  Flame,
+  ArrowRight,
+  PenTool,
+  BookOpen,
 } from 'lucide-react';
 import {
   ExpressionCard,
-  ComboScenario,
   ComboEvaluationResult,
   UserSentenceRecord,
 } from '../types/card';
 import { speakEnglish } from '../utils/audio';
 import { formatDate } from '../utils/srs';
+import { SentenceAnalysisModal } from './SentenceAnalysisModal';
 
 interface ComboSentenceChallengeProps {
   cards: ExpressionCard[];
@@ -45,8 +42,6 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
   });
 
   const [selectedCards, setSelectedCards] = useState<ExpressionCard[]>([]);
-  const [scenario, setScenario] = useState<ComboScenario | null>(null);
-  const [isGeneratingScenario, setIsGeneratingScenario] = useState(false);
 
   // User writing state
   const [userParagraph, setUserParagraph] = useState('');
@@ -54,9 +49,9 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
   const [evaluation, setEvaluation] = useState<ComboEvaluationResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [hasSaved, setHasSaved] = useState(false);
-  const [showModelExample, setShowModelExample] = useState(false);
   const [copied, setCopied] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [analysisSentence, setAnalysisSentence] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -70,56 +65,15 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
     return shuffled.slice(0, count);
   };
 
-  // Helper: Fetch scenario from AI backend
-  const fetchScenarioForCards = async (exprCards: ExpressionCard[]) => {
-    if (exprCards.length < 2) return;
-    setIsGeneratingScenario(true);
-    setErrorMsg(null);
-    setEvaluation(null);
-    setUserParagraph('');
-    setHasSaved(false);
-    setShowModelExample(false);
-
-    try {
-      const res = await fetch('/api/generate-combo-scenario', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          expressions: exprCards.map((c) => ({
-            expression: c.expression,
-            chineseMeaning: c.chineseMeaning,
-            register: c.register,
-          })),
-        }),
-      });
-
-      if (!res.ok) {
-        throw new Error('情境生成服务暂时繁忙，已切换至智能备用场景');
-      }
-
-      const data = await res.json();
-      setScenario(data);
-    } catch (e: any) {
-      console.warn('Fallback scenario due to error', e);
-      const names = exprCards.map((c) => `"${c.expression}"`).join('、');
-      setScenario({
-        scenarioTitle: '职场与生活综合融汇演练',
-        scenarioCategory: '综合实战',
-        scenarioDescription: `在紧凑的团队工作或跨文化交流中，尝试写出2-3句英文，将【${names}】自然串联起来，展现地道母语思维。`,
-        thoughtStarter: '构思思路：先交代面临的具体任务或讨论议题，再描述团队表现，最后顺理成章地引出总结或行动提议。',
-        modelParagraph: '',
-      });
-    } finally {
-      setIsGeneratingScenario(false);
-    }
-  };
-
   // Initialize random selection on mount or when targetCount changes
   useEffect(() => {
     if (cards.length >= 2) {
       const sampled = sampleRandomCards(targetCount, cards);
       setSelectedCards(sampled);
-      fetchScenarioForCards(sampled);
+      setUserParagraph('');
+      setEvaluation(null);
+      setErrorMsg(null);
+      setHasSaved(false);
     }
   }, [targetCount]);
 
@@ -128,7 +82,10 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
     if (cards.length < 2) return;
     const sampled = sampleRandomCards(targetCount, cards);
     setSelectedCards(sampled);
-    fetchScenarioForCards(sampled);
+    setUserParagraph('');
+    setEvaluation(null);
+    setErrorMsg(null);
+    setHasSaved(false);
   };
 
   // Swap out a single expression card
@@ -145,7 +102,9 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
     const newSelected = [...selectedCards];
     newSelected[indexToSwap] = randomPick;
     setSelectedCards(newSelected);
-    fetchScenarioForCards(newSelected);
+    setEvaluation(null);
+    setErrorMsg(null);
+    setHasSaved(false);
   };
 
   // Real-time detection of which expressions the user has typed
@@ -153,7 +112,6 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
     const lower = userParagraph.toLowerCase();
     return selectedCards.map((card) => {
       const exprLower = card.expression.toLowerCase().trim();
-      // Check full match or significant word match
       const isIncluded = lower.includes(exprLower);
       return {
         card,
@@ -180,7 +138,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           expressions: selectedCards.map((c) => c.expression),
-          scenarioDescription: scenario?.scenarioDescription || '',
+          scenarioDescription: '用户纯自主构思造句，无任何预设场景或命题限制',
           userParagraph: userParagraph.trim(),
         }),
       });
@@ -208,7 +166,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
       const record: UserSentenceRecord = {
         id: `combo-sent-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
         sentence: userParagraph.trim(),
-        promptScenario: `[多词串联挑战] ${scenario?.scenarioTitle || '实战串联'}`,
+        promptScenario: '自主多词串联实战',
         score: evaluation.overallScore,
         status: evaluation.status,
         isGrammaticallyCorrect: true,
@@ -274,13 +232,13 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
         <div>
           <div className="flex items-center space-x-2 text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1">
             <Sparkles className="w-4 h-4" />
-            <span>Expression Synergy Challenge · 串联造句挑战</span>
+            <span>Expression Synergy Challenge · 自主多词串联实战</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold font-serif text-stone-900 dark:text-stone-100">
-            随机抽取表达 · 连词成段实战
+            随机抽取表达 · 自主连词成段
           </h2>
           <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-            母语者从不孤立背词。尝试在一个连贯生动的语境场景中，将这组表达浑然天成地融合在一起！
+            无任何预设场景与命题限制。自由发挥灵感，将抽取的表达自然融合进你自己的英文段落中。
           </p>
         </div>
 
@@ -357,7 +315,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
                     <button
                       type="button"
                       onClick={() => handleSwapCard(idx)}
-                      className="p-1 rounded-md text-stone-400 hover:text-amber-600 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors ml-1"
+                      className="p-1 rounded-md text-stone-400 hover:text-amber-600 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors ml-1 cursor-pointer"
                       title="单独更换这个词"
                     >
                       <RefreshCw className="w-3 h-3" />
@@ -372,7 +330,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
                   <button
                     type="button"
                     onClick={() => speakEnglish(card.expression)}
-                    className="p-0.5 text-stone-400 hover:text-amber-600 transition-colors"
+                    className="p-0.5 text-stone-400 hover:text-amber-600 transition-colors cursor-pointer"
                   >
                     <Volume2 className="w-3 h-3" />
                   </button>
@@ -393,55 +351,20 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
         </div>
       </div>
 
-      {/* AI Generated Scenario Arena */}
-      <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xl space-y-4 relative overflow-hidden">
-        {isGeneratingScenario && (
-          <div className="absolute inset-0 z-10 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xs flex items-center justify-center space-x-2 text-xs font-bold text-amber-600 animate-in fade-in">
-            <RefreshCw className="w-4 h-4 animate-spin" />
-            <span>AI 正在为您构想融合这几个表达的最佳母语语境...</span>
+      {/* Writing Arena */}
+      <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xl space-y-4">
+        <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 space-y-2">
+          <div className="flex items-center space-x-2 text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
+            <PenTool className="w-3.5 h-3.5 text-amber-600" />
+            <span>纯自主串联造句 · 无命题场景限制</span>
           </div>
-        )}
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-stone-100 dark:border-stone-800">
-          <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-1 rounded-xl bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 text-xs font-bold">
-              {scenario?.scenarioCategory || '真实场景模拟'}
-            </span>
-            <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 font-serif">
-              {scenario?.scenarioTitle || '多词场景挑战'}
-            </h3>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => fetchScenarioForCards(selectedCards)}
-            className="text-xs text-stone-500 hover:text-amber-600 dark:hover:text-amber-400 flex items-center space-x-1 cursor-pointer self-start sm:self-auto"
-          >
-            <RefreshCw className="w-3 h-3" />
-            <span>刷新换一个情境</span>
-          </button>
+          <p className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed font-sans">
+            根据你想表达的任何真实工作、生活经历或自由观点，写下 1-3 句英文将上方的目标表达连缀成段。AI 导师将直接基于你的句子和用词优化为纯正母语表达，并严格保留全部目标表达！
+          </p>
         </div>
 
-        {/* Scenario Description */}
-        <p className="text-sm sm:text-base text-stone-800 dark:text-stone-200 leading-relaxed font-sans">
-          {scenario?.scenarioDescription}
-        </p>
-
-        {/* Thought Starter Helper */}
-        {scenario?.thoughtStarter && (
-          <div className="p-3.5 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/40 text-xs text-stone-700 dark:text-stone-300 flex items-start space-x-2">
-            <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <div>
-              <span className="font-bold text-amber-700 dark:text-amber-400 mr-1">
-                构思提示：
-              </span>
-              <span>{scenario.thoughtStarter}</span>
-            </div>
-          </div>
-        )}
-
         {/* User Writing Form */}
-        <form onSubmit={handleSubmit} className="space-y-3 pt-2">
+        <form onSubmit={handleSubmit} className="space-y-3 pt-1">
           <div className="relative">
             <textarea
               rows={4}
@@ -458,7 +381,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
                   setHasSaved(false);
                 }
               }}
-              placeholder="请用英语写下 2-3 句话的小段落，将上方全部高亮目标表达融汇贯通..."
+              placeholder="请用英语写下 1-3 句话的小段落，将上方目标表达自然融入..."
               className="w-full p-4 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50/70 dark:bg-stone-800/60 text-stone-900 dark:text-stone-100 text-sm sm:text-base font-serif focus:outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed placeholder:font-sans placeholder:text-stone-400"
             />
             <div className="absolute right-3 bottom-3 flex items-center space-x-2 text-xs text-stone-400">
@@ -558,7 +481,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
                   )}
                 </div>
                 <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-                  AI 母语教练针对 {selectedCards.length} 个表达在该情境下的起承转合与语法语感进行了综合评估
+                  AI 母语教练针对 {selectedCards.length} 个表达的起承转合、语法与地道语感进行了综合评估
                 </p>
               </div>
             </div>
@@ -671,8 +594,17 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
               <div className="flex items-center space-x-1.5">
                 <button
                   type="button"
+                  onClick={() => setAnalysisSentence(evaluation.nativeAlternative)}
+                  className="p-1.5 px-2 rounded-xl bg-white/70 dark:bg-stone-800/70 hover:bg-white text-stone-600 dark:text-stone-300 hover:text-amber-600 transition-colors shadow-xs cursor-pointer flex items-center space-x-1 text-xs"
+                  title="逐词解析词义与读音 (支持长按)"
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-amber-500" />
+                  <span>解析词义</span>
+                </button>
+                <button
+                  type="button"
                   onClick={() => speakEnglish(evaluation.nativeAlternative)}
-                  className="p-1.5 rounded-xl bg-white/70 dark:bg-stone-800/70 hover:bg-white text-stone-600 dark:text-stone-300 hover:text-amber-600 transition-colors shadow-xs"
+                  className="p-1.5 rounded-xl bg-white/70 dark:bg-stone-800/70 hover:bg-white text-stone-600 dark:text-stone-300 hover:text-amber-600 transition-colors shadow-xs cursor-pointer"
                   title="朗读重写范例"
                 >
                   <Volume2 className="w-4 h-4" />
@@ -680,7 +612,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
                 <button
                   type="button"
                   onClick={handleCopyRewrite}
-                  className="p-1.5 rounded-xl bg-white/70 dark:bg-stone-800/70 hover:bg-white text-stone-600 dark:text-stone-300 hover:text-amber-600 transition-colors shadow-xs"
+                  className="p-1.5 rounded-xl bg-white/70 dark:bg-stone-800/70 hover:bg-white text-stone-600 dark:text-stone-300 hover:text-amber-600 transition-colors shadow-xs cursor-pointer"
                   title="复制范例"
                 >
                   {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
@@ -713,6 +645,13 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
           </div>
         </div>
       )}
+
+      {/* Sentence Analysis Modal */}
+      <SentenceAnalysisModal
+        isOpen={Boolean(analysisSentence)}
+        onClose={() => setAnalysisSentence(null)}
+        sentence={analysisSentence || ''}
+      />
     </div>
   );
 };
