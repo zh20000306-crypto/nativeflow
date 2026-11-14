@@ -22,13 +22,13 @@ interface AddExpressionViewProps {
 }
 
 const QUICK_PRESETS = [
-  { text: 'bite the bullet', label: '咬紧牙关硬着头皮做' },
-  { text: 'cut corners', label: '偷工减料/抄近道' },
-  { text: 'down to earth', label: '接地气/务实随和' },
-  { text: "ring a bell", label: '听起来耳熟/似曾相识' },
-  { text: "wrap one's head around", label: '理解弄懂复杂事物' },
-  { text: 'once in a blue moon', label: '千载难逢/极其罕见' },
-  { text: "devil's advocate", label: '唱反调者/故意挑刺找漏洞' },
+  { text: 'sleep on it', label: '睡一觉明天再决定' },
+  { text: 'take a rain check', label: '改天再约/这次先放鸽子' },
+  { text: 'hit the spot', label: '正合心意/太解馋太爽了' },
+  { text: 'down to earth', label: '接地气/随和好相处' },
+  { text: 'ring a bell', label: '听起来耳熟/好像听过' },
+  { text: 'once in a blue moon', label: '难得一遇/稀罕事' },
+  { text: 'on cloud nine', label: '乐开花/开心到飞起' },
 ];
 
 export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
@@ -210,12 +210,12 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
         </h2>
         <p className="text-sm text-stone-600 dark:text-stone-400 max-w-xl mx-auto">
           输入任何单词、俚语或习语短语。AI
-          将像专业词典编纂者一样，深度拆解地道语感、原声音频与情境例句，并自动排入艾宾浩斯复习日程。
+          将像专业词典编纂者一样，深度拆解地道语感、原声音频与生活情境例句，并自动排入艾宾浩斯复习日程。
         </p>
       </div>
 
       {/* Input Card Container */}
-      <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 sm:p-8 border border-stone-200 dark:border-stone-800 shadow-xl space-y-5">
+      <div className="bg-[#FFFEFA] dark:bg-stone-900 rounded-3xl p-6 sm:p-8 border border-[#EAE2D6] dark:border-stone-800 shadow-sm space-y-5">
         <div className="space-y-2">
           <label className="text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider">
             英语表达 / 单词 / 习语 (English Expression)
@@ -226,8 +226,8 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
               value={inputExpression}
               onChange={(e) => setInputExpression(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-              placeholder="例如：call it a day, bite the bullet, serendipity..."
-              className="w-full px-4 py-3.5 pr-36 rounded-2xl border border-stone-300 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-800/50 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-base font-serif focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
+              placeholder="例如：call it a day, sleep on it, hit the spot..."
+              className="w-full px-4 py-3.5 pr-36 rounded-2xl border border-[#EAE2D6] dark:border-stone-700 bg-[#FAF6F0]/60 dark:bg-stone-800/50 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-base font-serif focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
               disabled={isLoading}
             />
 
@@ -240,7 +240,7 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
                   setGeneratedCard(null);
                   setErrorMsg(null);
                 }}
-                className="absolute right-30 p-1.5 rounded-full text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200/60 dark:hover:bg-stone-700/60 transition-colors cursor-pointer"
+                className="absolute right-30 p-1.5 rounded-full text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-[#F3ECE1] dark:hover:bg-stone-700/60 transition-colors cursor-pointer"
                 title="清空输入"
                 aria-label="清空输入"
               >
@@ -251,7 +251,7 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
             <button
               onClick={() => handleGenerate()}
               disabled={isLoading || !inputExpression.trim()}
-              className="absolute right-2 top-2 bottom-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:bg-stone-300 dark:disabled:bg-stone-800 text-white font-semibold text-xs sm:text-sm flex items-center space-x-1.5 transition-all shadow-md shadow-amber-500/20 cursor-pointer disabled:cursor-not-allowed"
+              className="absolute right-2 top-2 bottom-2 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:bg-stone-300 dark:disabled:bg-stone-800 text-white font-semibold text-xs sm:text-sm flex items-center space-x-1.5 transition-all shadow-sm cursor-pointer disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />
@@ -275,15 +275,15 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
               type="text"
               value={contextHint}
               onChange={(e) => setContextHint(e.target.value)}
-              placeholder="例如：在《硅谷》美剧中听到、或者用于下周的外企全英面试开场白..."
-              className="w-full px-3.5 py-2 pr-9 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50/30 dark:bg-stone-800/30 text-stone-700 dark:text-stone-300 placeholder-stone-400 text-xs focus:outline-none focus:ring-1 focus:ring-amber-400"
+              placeholder="例如：在美剧《老友记》里听到、或者打算周末和朋友聚餐/出国旅行时用到..."
+              className="w-full px-3.5 py-2 pr-9 rounded-xl border border-[#EAE2D6] dark:border-stone-800 bg-[#FAF6F0]/40 dark:bg-stone-800/40 text-stone-700 dark:text-stone-300 placeholder-stone-400 text-xs focus:outline-none focus:ring-1 focus:ring-amber-500"
               disabled={isLoading}
             />
             {contextHint && !isLoading && (
               <button
                 type="button"
                 onClick={() => setContextHint('')}
-                className="absolute right-2.5 p-1 rounded-full text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200/60 dark:hover:bg-stone-700/60 transition-colors cursor-pointer"
+                className="absolute right-2.5 p-1 rounded-full text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-[#F3ECE1] dark:hover:bg-stone-700/60 transition-colors cursor-pointer"
                 title="清空附加语境"
                 aria-label="清空附加语境"
               >
@@ -304,7 +304,7 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
                 key={idx}
                 onClick={() => handleSelectPreset(p.text)}
                 disabled={isLoading}
-                className="text-xs px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-stone-700 dark:text-stone-300 hover:text-amber-700 dark:hover:text-amber-300 border border-stone-200/60 dark:border-stone-700/60 transition-colors flex items-center space-x-1"
+                className="text-xs px-3 py-1.5 rounded-xl bg-[#FAF6F0] dark:bg-stone-800 hover:bg-[#F6EBDA] dark:hover:bg-amber-950/40 text-stone-700 dark:text-stone-300 hover:text-amber-900 dark:hover:text-amber-300 border border-[#EAE2D6] dark:border-stone-700/60 transition-colors flex items-center space-x-1 cursor-pointer"
               >
                 <span className="font-serif font-semibold">{p.text}</span>
                 <span className="text-stone-400 text-[10px]">({p.label})</span>
@@ -314,9 +314,9 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
         </div>
 
         {errorMsg && (
-          <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-xs flex items-center justify-between gap-2">
+          <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs flex items-center justify-between gap-2">
             <div className="flex items-center space-x-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
               <span>{errorMsg}</span>
             </div>
             <button
@@ -332,15 +332,15 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
 
       {/* Loading Skeleton */}
       {isLoading && (
-        <div className="bg-white dark:bg-stone-900 rounded-3xl p-8 border border-stone-200 dark:border-stone-800 shadow-xl text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center mx-auto shadow-inner">
+        <div className="bg-[#FFFEFA] dark:bg-stone-900 rounded-3xl p-8 border border-[#EAE2D6] dark:border-stone-800 shadow-sm text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-[#F6EBDA] dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center mx-auto shadow-inner">
             <RefreshCw className="w-6 h-6 animate-spin" />
           </div>
           <div className="space-y-2 max-w-md mx-auto">
             <h3 className="font-bold text-base text-stone-800 dark:text-stone-200">
               极速深度解析中："{inputExpression}"
             </h3>
-            <div className="inline-block px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-xs font-medium animate-pulse">
+            <div className="inline-block px-3 py-1 rounded-full bg-[#F6EBDA] dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/60 text-[#8A4B0F] dark:text-amber-300 text-xs font-medium animate-pulse">
               {LOADING_STEPS[loadingStep]}
             </div>
             <p className="text-[11px] text-stone-400 pt-1">
@@ -355,7 +355,7 @@ export const AddExpressionView: React.FC<AddExpressionViewProps> = ({
         <div className="space-y-4 animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="flex items-center justify-between px-2">
             <div className="flex items-center space-x-2 text-xs text-stone-600 dark:text-stone-300 font-semibold">
-              <Sparkles className="w-4 h-4 text-amber-500" />
+              <Sparkles className="w-4 h-4 text-amber-600" />
               <span>卡片解析完成！请确认并保存至复习词库</span>
             </div>
 

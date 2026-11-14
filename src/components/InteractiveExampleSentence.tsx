@@ -108,15 +108,15 @@ export const InteractiveExampleSentence: React.FC<InteractiveExampleSentenceProp
       onMouseLeave={clearHold}
       className={`p-4 sm:p-5 rounded-2xl border transition-all space-y-2.5 relative select-none cursor-pointer group ${
         isHolding
-          ? 'bg-amber-100/70 dark:bg-amber-950/40 border-amber-400 dark:border-amber-600 shadow-md ring-2 ring-amber-500/20'
-          : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200/70 dark:border-stone-800 hover:bg-stone-100/60 dark:hover:bg-stone-800/70 hover:border-amber-300 dark:hover:border-amber-800/70'
+          ? 'bg-[#F6EBDA] dark:bg-amber-950/40 border-amber-500 dark:border-amber-600 shadow-sm ring-2 ring-amber-500/20'
+          : 'bg-[#FAF6F0] dark:bg-stone-800/40 border-[#EAE2D6] dark:border-stone-800 hover:bg-[#F5EFE6] dark:hover:bg-stone-800/70 hover:border-amber-300 dark:hover:border-amber-800/70'
       }`}
     >
       {/* Long-press holding progress ring/bar */}
       {isHolding && (
         <div className="absolute top-0 left-0 right-0 h-1 bg-amber-200 dark:bg-amber-950/60 overflow-hidden rounded-t-2xl">
           <div
-            className="h-full bg-amber-500 transition-all duration-75"
+            className="h-full bg-amber-600 transition-all duration-75"
             style={{ width: `${holdProgress}%` }}
           />
         </div>
@@ -126,12 +126,12 @@ export const InteractiveExampleSentence: React.FC<InteractiveExampleSentenceProp
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center space-x-2">
           {sceneTag && (
-            <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/20">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-[#F6EBDA] dark:bg-amber-950/60 text-[#8A4B0F] dark:text-amber-300 border border-amber-200/70 dark:border-amber-900/60">
               {sceneTag}
             </span>
           )}
           <span className="text-[10px] text-stone-400 hidden sm:inline-flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <BookOpen className="w-3 h-3 text-amber-500" />
+            <BookOpen className="w-3 h-3 text-amber-600" />
             <span>长按例句查看词义读音</span>
           </span>
         </div>
@@ -141,10 +141,10 @@ export const InteractiveExampleSentence: React.FC<InteractiveExampleSentenceProp
           <button
             type="button"
             onClick={() => onOpenAnalysis(sentence, translation, expression)}
-            className="p-1.5 px-2 rounded-lg bg-white/80 dark:bg-stone-700/80 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-stone-600 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 border border-stone-200/60 dark:border-stone-700 transition-colors flex items-center space-x-1 text-xs cursor-pointer shadow-2xs"
+            className="p-1.5 px-2 rounded-lg bg-[#FFFEFA] dark:bg-stone-700/80 hover:bg-[#F6EBDA] dark:hover:bg-amber-950/40 text-stone-600 dark:text-stone-300 hover:text-amber-800 dark:hover:text-amber-300 border border-[#EAE2D6] dark:border-stone-700 transition-colors flex items-center space-x-1 text-xs cursor-pointer shadow-2xs"
             title="词义解析与发音 (支持长按)"
           >
-            <BookOpen className="w-3.5 h-3.5 text-amber-500" />
+            <BookOpen className="w-3.5 h-3.5 text-amber-600" />
             <span className="font-semibold text-[11px] hidden xs:inline">解析</span>
           </button>
 
@@ -153,11 +153,11 @@ export const InteractiveExampleSentence: React.FC<InteractiveExampleSentenceProp
             <button
               type="button"
               onClick={onCopy}
-              className="p-1.5 rounded-lg text-stone-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-white dark:hover:bg-stone-700 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-stone-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-[#FFFEFA] dark:hover:bg-stone-700 transition-colors cursor-pointer"
               title="复制例句"
             >
               {isCopied ? (
-                <Check className="w-3.5 h-3.5 text-emerald-500" />
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
               ) : (
                 <Copy className="w-3.5 h-3.5" />
               )}
@@ -168,7 +168,7 @@ export const InteractiveExampleSentence: React.FC<InteractiveExampleSentenceProp
           <button
             type="button"
             onClick={() => speakEnglish(sentence)}
-            className="p-1.5 rounded-lg text-stone-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-white dark:hover:bg-stone-700 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-stone-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-[#FFFEFA] dark:hover:bg-stone-700 transition-colors cursor-pointer"
             title="朗读此例句"
           >
             <Volume2 className="w-3.5 h-3.5" />
@@ -178,8 +178,8 @@ export const InteractiveExampleSentence: React.FC<InteractiveExampleSentenceProp
 
       {/* Scenario Description if present */}
       {scenarioDescription && (
-        <div className="text-xs text-amber-800/90 dark:text-amber-400/90 font-medium bg-amber-500/5 dark:bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/15">
-          <span className="font-semibold">💡 适用语境：</span>
+        <div className="text-xs text-amber-900 dark:text-amber-200 font-medium bg-[#F6EBDA]/60 dark:bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-200/60 dark:border-amber-800/40">
+          <span className="font-semibold text-amber-800 dark:text-amber-300">💡 适用语境：</span>
           <span>{scenarioDescription}</span>
         </div>
       )}

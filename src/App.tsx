@@ -143,7 +143,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-100/70 dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col font-sans transition-colors selection:bg-amber-500/20 selection:text-amber-800">
+    <div className="min-h-screen bg-[#FAF6F0] dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col font-sans transition-colors selection:bg-amber-500/20 selection:text-amber-900 dark:selection:text-amber-200">
       {/* Top Navbar */}
       <Navbar
         currentTab={currentTab}
@@ -197,13 +197,13 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-stone-200/80 dark:border-stone-800/80 py-6 px-4 bg-white/60 dark:bg-stone-900/60 text-center text-xs text-stone-500 dark:text-stone-400">
+      <footer className="border-t border-[#EAE2D6] dark:border-stone-800/80 py-6 px-4 bg-[#FFFEFA]/80 dark:bg-stone-900/70 text-center text-xs text-stone-500 dark:text-stone-400">
         <div className="max-w-6xl mx-auto flex items-center justify-center">
           <div className="flex items-center space-x-2">
             <span className="font-serif font-bold text-stone-800 dark:text-stone-200">
               NativeFlow
             </span>
-            <span>· 地道语境记表达，造句融会贯通，艾宾浩斯智能复习</span>
+            <span>· 把表达用出去 · 地道生活语境与艾宾浩斯智能复习</span>
           </div>
         </div>
       </footer>

@@ -145,12 +145,12 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
   const currentHistorySentence = historySentences[historyIdx];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-stone-900 rounded-2xl max-w-2xl w-full border border-stone-200 dark:border-stone-800 shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
+      <div className="bg-[#FFFEFA] dark:bg-stone-900 rounded-2xl max-w-2xl w-full border border-[#EAE2D6] dark:border-stone-800 shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="px-5 py-4 border-b border-stone-200 dark:border-stone-800 flex items-center justify-between bg-stone-50/50 dark:bg-stone-900/50">
+        <div className="px-5 py-4 border-b border-[#EAE2D6] dark:border-stone-800 flex items-center justify-between bg-[#FAF6F0]/90 dark:bg-stone-900/70">
           <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-500/10 dark:bg-amber-400/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/15 dark:bg-amber-400/10 text-amber-800 dark:text-amber-400 flex items-center justify-center font-bold">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
@@ -165,14 +165,14 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
 
           <div className="flex items-center space-x-2">
             {historySentences.length > 0 && (
-              <div className="flex bg-stone-100 dark:bg-stone-800 p-0.5 rounded-lg text-xs">
+              <div className="flex bg-[#F3ECE1] dark:bg-stone-800 p-0.5 rounded-lg text-xs">
                 <button
                   type="button"
                   onClick={() => setActiveTab('write')}
                   className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
                     activeTab === 'write'
-                      ? 'bg-white dark:bg-stone-700 text-amber-600 dark:text-amber-400 shadow-sm'
-                      : 'text-stone-500 hover:text-stone-700'
+                      ? 'bg-[#FFFEFA] dark:bg-stone-700 text-amber-900 dark:text-amber-300 shadow-sm'
+                      : 'text-stone-500 hover:text-stone-800'
                   }`}
                 >
                   <span className="flex items-center space-x-1">
@@ -185,8 +185,8 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                   onClick={() => setActiveTab('history')}
                   className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
                     activeTab === 'history'
-                      ? 'bg-white dark:bg-stone-700 text-amber-600 dark:text-amber-400 shadow-sm'
-                      : 'text-stone-500 hover:text-stone-700'
+                      ? 'bg-[#FFFEFA] dark:bg-stone-700 text-amber-900 dark:text-amber-300 shadow-sm'
+                      : 'text-stone-500 hover:text-stone-800'
                   }`}
                 >
                   <span className="flex items-center space-x-1">
@@ -199,7 +199,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+              className="p-1.5 rounded-lg text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 hover:bg-[#F3ECE1] dark:hover:bg-stone-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -210,7 +210,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
         {activeTab === 'write' && (
           <div className="p-5 overflow-y-auto flex-1 space-y-4">
             {/* Target expression summary */}
-            <div className="p-4 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40">
+            <div className="p-4 rounded-xl bg-[#FAF6F0] dark:bg-amber-950/20 border border-[#EAE2D6] dark:border-amber-900/40">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center space-x-2">
@@ -220,7 +220,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                     <button
                       type="button"
                       onClick={() => speakEnglish(card.expression)}
-                      className="p-1 rounded text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors"
+                      className="p-1 rounded text-amber-700 dark:text-amber-400 hover:bg-[#F6EBDA] dark:hover:bg-amber-900/50 transition-colors"
                       title="播放发音"
                     >
                       <Volume2 className="w-4 h-4" />
@@ -233,7 +233,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                     释义：{card.chineseMeaning}
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-amber-200/70 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200">
+                <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-[#F6EBDA] dark:bg-amber-900/50 text-[#8A4B0F] dark:text-amber-200">
                   {card.register}
                 </span>
               </div>
@@ -247,7 +247,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
 
               {/* Quick collocation chips */}
               {card.collocations && card.collocations.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-amber-200/60 dark:border-amber-900/40 flex flex-wrap gap-1.5 items-center">
+                <div className="mt-3 pt-3 border-t border-[#EAE2D6] dark:border-amber-900/40 flex flex-wrap gap-1.5 items-center">
                   <span className="text-[11px] font-medium text-stone-500 dark:text-stone-400">
                     高频搭配：
                   </span>
@@ -256,7 +256,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                       key={idx}
                       type="button"
                       onClick={() => handleInsertPhrase(col.phrase)}
-                      className="text-xs px-2.5 py-0.5 rounded-lg bg-white/90 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:border-amber-400 hover:text-amber-600 transition-colors cursor-pointer"
+                      className="text-xs px-2.5 py-0.5 rounded-lg bg-[#FFFEFA] dark:bg-stone-800 border border-[#EAE2D6] dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:border-amber-400 hover:text-amber-800 transition-colors cursor-pointer"
                     >
                       + {col.phrase}
                     </button>
@@ -270,14 +270,14 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-stone-800 dark:text-stone-200 flex items-center space-x-1.5">
-                    <PenTool className="w-3.5 h-3.5 text-amber-600" />
+                    <PenTool className="w-3.5 h-3.5 text-amber-700" />
                     <span>自由造句实战 (Free Writing)</span>
                   </label>
                   <div className="flex items-center space-x-2">
                     <button
                       type="button"
                       onClick={() => handleInsertPhrase(card.expression)}
-                      className="text-xs text-amber-600 dark:text-amber-400 hover:underline font-medium cursor-pointer"
+                      className="text-xs text-amber-700 dark:text-amber-400 hover:underline font-medium cursor-pointer"
                     >
                       + 插入 "{card.expression}"
                     </button>
@@ -324,15 +324,15 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                   }}
                   placeholder={`用 "${card.expression}" 自由写下你想说的一句英语... (支持按 Cmd/Ctrl + Enter 快捷提交)`}
                   rows={3}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all font-sans leading-relaxed"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE2D6] dark:border-stone-700 bg-[#FAF6F0] dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all font-sans leading-relaxed"
                   disabled={isSubmitting}
                 />
               </div>
 
               {errorMsg && (
-                <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-xs flex items-center justify-between gap-2">
+                <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 text-xs flex items-center justify-between gap-2">
                   <div className="flex items-center space-x-2">
-                    <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
+                    <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                     <span>{errorMsg}</span>
                   </div>
                   <button
@@ -348,7 +348,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting || !userSentence.trim()}
-                className="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:bg-stone-200 dark:disabled:bg-stone-800 disabled:text-stone-400 text-white font-medium text-sm flex items-center justify-center space-x-2 shadow-md shadow-amber-500/20 transition-all cursor-pointer disabled:cursor-not-allowed"
+                className="w-full py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:bg-stone-200 dark:disabled:bg-stone-800 disabled:text-stone-400 text-white font-medium text-sm flex items-center justify-center space-x-2 shadow-md shadow-amber-600/20 transition-all cursor-pointer disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <>
@@ -371,11 +371,11 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
 
             {/* Evaluation Result View */}
             {evaluation && (
-              <div className="space-y-4 pt-2 border-t border-stone-200 dark:border-stone-800 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="space-y-4 pt-2 border-t border-[#EAE2D6] dark:border-stone-800 animate-in fade-in slide-in-from-bottom-2 duration-300">
                 {/* Score banner */}
                 <div className="p-4 rounded-xl bg-gradient-to-r from-stone-900 to-stone-800 dark:from-stone-800 dark:to-stone-950 text-white flex items-center justify-between shadow-lg">
                   <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 rounded-xl bg-amber-500 flex items-center justify-center text-stone-900 font-extrabold text-xl shadow-inner font-serif">
+                    <div className="w-12 h-12 rounded-xl bg-amber-600 flex items-center justify-center text-white font-extrabold text-xl shadow-inner font-serif">
                       {evaluation.score}
                     </div>
                     <div>
@@ -422,7 +422,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                   <button
                     type="button"
                     onClick={() => speakEnglish(userSentence)}
-                    className="p-2 rounded-lg bg-stone-700/60 hover:bg-stone-700 text-stone-200 transition-colors"
+                    className="p-2 rounded-lg bg-stone-700/60 hover:bg-stone-700 text-stone-200 transition-colors cursor-pointer"
                     title="朗读你的造句"
                   >
                     <Volume2 className="w-4 h-4" />
@@ -430,7 +430,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                 </div>
 
                 {/* Feedback */}
-                <div className="p-3.5 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-700/60 space-y-1.5">
+                <div className="p-3.5 rounded-xl bg-[#FAF6F0] dark:bg-stone-800/60 border border-[#EAE2D6] dark:border-stone-700/60 space-y-1.5">
                   <div className="text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                     👨‍🏫 导师点评与语感解析
                   </div>
@@ -453,30 +453,30 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
 
                 {/* Native Polish Alternative */}
                 {evaluation.nativeAlternative && (
-                  <div className="p-4 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200/70 dark:border-indigo-900/50 space-y-2">
+                  <div className="p-4 rounded-xl bg-[#F6EBDA]/55 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/50 space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <span className="text-xs font-bold text-indigo-900 dark:text-indigo-300 flex items-center space-x-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                        <span className="text-xs font-bold text-[#8A4B0F] dark:text-amber-300 flex items-center space-x-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
                           <span>母语者地道润色 (Native Polish)</span>
                         </span>
-                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/70 text-indigo-800 dark:text-indigo-200">
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#F6EBDA] dark:bg-amber-900/70 text-[#8A4B0F] dark:text-amber-200">
                           保持使用「{card.expression}」
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={() => speakEnglish(evaluation.nativeAlternative)}
-                        className="p-1 rounded text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100"
+                        className="p-1 rounded text-amber-700 dark:text-amber-300 hover:bg-[#F6EBDA] cursor-pointer"
                         title="朗读润色句子"
                       >
                         <Volume2 className="w-4 h-4" />
                       </button>
                     </div>
-                    <p className="text-sm font-medium text-indigo-950 dark:text-indigo-100 italic font-serif">
+                    <p className="text-sm font-medium text-stone-900 dark:text-stone-100 italic font-serif">
                       "{evaluation.nativeAlternative}"
                     </p>
-                    <p className="text-xs text-indigo-800 dark:text-indigo-300/90 leading-relaxed">
+                    <p className="text-xs text-[#8A4B0F] dark:text-amber-300/90 leading-relaxed">
                       <span className="font-semibold">升级亮点：</span>
                       {evaluation.alternativeAnalysis}
                     </p>
@@ -489,7 +489,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                     <button
                       type="button"
                       onClick={handleSaveToCard}
-                      className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+                      className="flex-1 py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-medium text-sm flex items-center justify-center space-x-1.5 shadow-md shadow-amber-600/20 transition-all cursor-pointer"
                     >
                       <BookmarkCheck className="w-4 h-4" />
                       <span>保存我的造句到卡片</span>
@@ -504,7 +504,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                   <button
                     type="button"
                     onClick={handleResetForAnother}
-                    className="py-2.5 px-4 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-700 dark:text-stone-300 text-sm font-medium flex items-center space-x-1 transition-colors cursor-pointer"
+                    className="py-2.5 px-4 rounded-xl bg-[#F3ECE1] dark:bg-stone-800 hover:bg-[#EAE2D6] text-stone-700 dark:text-stone-300 text-sm font-medium flex items-center space-x-1 transition-colors cursor-pointer"
                     title="清空当前输入，继续写新句子"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
@@ -527,12 +527,12 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
             ) : (
               <div className="space-y-4">
                 {/* Navigation Bar: 上一句 / 下一句 */}
-                <div className="flex items-center justify-between p-3 rounded-xl bg-stone-100 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-[#F3ECE1] dark:bg-stone-800/80 border border-[#EAE2D6] dark:border-stone-700">
                   <button
                     type="button"
                     onClick={() => setHistoryIdx((prev) => Math.max(0, prev - 1))}
                     disabled={historyIdx === 0}
-                    className="px-3 py-1.5 rounded-lg bg-white dark:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1 shadow-sm transition-all"
+                    className="px-3 py-1.5 rounded-lg bg-[#FFFEFA] dark:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1 shadow-sm transition-all cursor-pointer"
                   >
                     <ChevronLeft className="w-3.5 h-3.5" />
                     <span>上一句</span>
@@ -550,7 +550,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                       )
                     }
                     disabled={historyIdx >= historySentences.length - 1}
-                    className="px-3 py-1.5 rounded-lg bg-white dark:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1 shadow-sm transition-all"
+                    className="px-3 py-1.5 rounded-lg bg-[#FFFEFA] dark:bg-stone-700 text-stone-700 dark:text-stone-200 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1 shadow-sm transition-all cursor-pointer"
                   >
                     <span>下一句</span>
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -559,10 +559,10 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
 
                 {/* Current Active Historical Sentence Card */}
                 {currentHistorySentence && (
-                  <div className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700 space-y-3">
+                  <div className="p-4 rounded-2xl bg-[#FAF6F0] dark:bg-stone-800/50 border border-[#EAE2D6] dark:border-stone-700 space-y-3">
                     {/* Scenario */}
                     {currentHistorySentence.promptScenario && (
-                      <div className="p-2.5 rounded-lg bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-900/30 text-xs text-amber-900 dark:text-amber-200">
+                      <div className="p-2.5 rounded-lg bg-[#F6EBDA]/70 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/30 text-xs text-[#8A4B0F] dark:text-amber-200">
                         <span className="font-bold">场景语境：</span>
                         {currentHistorySentence.promptScenario}
                       </div>
@@ -580,13 +580,13 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                       </div>
 
                       <div className="flex items-center space-x-2">
-                        <span className="text-xs font-mono font-extrabold px-2.5 py-1 rounded-full bg-amber-500 text-white">
+                        <span className="text-xs font-mono font-extrabold px-2.5 py-1 rounded-full bg-amber-600 text-white">
                           {currentHistorySentence.score}分
                         </span>
                         <button
                           type="button"
                           onClick={() => speakEnglish(currentHistorySentence.sentence)}
-                          className="p-1.5 rounded-lg bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-200"
+                          className="p-1.5 rounded-lg bg-[#F3ECE1] dark:bg-stone-700 text-stone-600 dark:text-stone-200 cursor-pointer"
                         >
                           <Volume2 className="w-4 h-4" />
                         </button>
@@ -594,7 +594,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                     </div>
 
                     {/* Feedback */}
-                    <div className="p-3 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-xs text-stone-700 dark:text-stone-300 space-y-1">
+                    <div className="p-3 rounded-xl bg-[#FFFEFA] dark:bg-stone-900 border border-[#EAE2D6] dark:border-stone-800 text-xs text-stone-700 dark:text-stone-300 space-y-1">
                       <span className="font-bold text-stone-900 dark:text-stone-100">
                         导师批改反馈：
                       </span>
@@ -603,9 +603,9 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
 
                     {/* Native polish */}
                     {currentHistorySentence.nativeAlternative && (
-                      <div className="p-3 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/70 dark:border-indigo-900/50 text-xs text-indigo-950 dark:text-indigo-200 space-y-1">
+                      <div className="p-3 rounded-xl bg-[#F6EBDA]/60 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-900/50 text-xs text-stone-900 dark:text-amber-200 space-y-1">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-indigo-700 dark:text-indigo-300">
+                          <span className="font-bold text-[#8A4B0F] dark:text-amber-300">
                             母语者润色版本：
                           </span>
                           <button
@@ -613,7 +613,7 @@ export const SentencePracticeModal: React.FC<SentencePracticeModalProps> = ({
                             onClick={() =>
                               speakEnglish(currentHistorySentence.nativeAlternative)
                             }
-                            className="text-indigo-600 dark:text-indigo-400"
+                            className="text-amber-700 dark:text-amber-400 cursor-pointer"
                           >
                             <Volume2 className="w-3.5 h-3.5" />
                           </button>

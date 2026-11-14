@@ -101,7 +101,7 @@ export const ArchitectureGuideView: React.FC = () => {
           </div>
 
           <div className="p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700 text-center">
-            <div className="text-base font-extrabold text-indigo-600">🟦 简单 (Easy)</div>
+            <div className="text-base font-extrabold text-amber-700 dark:text-amber-400">🟦 简单 (Easy)</div>
             <div className="text-xs text-stone-600 dark:text-stone-400 mt-1">
               额外加速奖励（1.3x），难度因子加成，减少熟词的无谓重复。
             </div>

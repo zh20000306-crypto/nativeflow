@@ -26,6 +26,7 @@ const ai = new GoogleGenAI({
 const analysisCache = new Map<string, any>();
 const evaluationCache = new Map<string, any>();
 const sentenceWordsCache = new Map<string, any>();
+const wordLookupCache = new Map<string, any>();
 const ttsCache = new Map<string, string>();
 
 // Candidate models prioritizing currently available & low-latency models
@@ -112,7 +113,7 @@ app.post("/api/analyze-expression", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Missing or invalid expression" });
     }
 
-    const cacheKey = `v6_topscenes_${expression.toLowerCase().trim()}_${(contextHint || "").toLowerCase().trim()}`;
+    const cacheKey = `v8_pure_life_${expression.toLowerCase().trim()}_${(contextHint || "").toLowerCase().trim()}`;
     if (analysisCache.has(cacheKey)) {
       const cached = analysisCache.get(cacheKey);
       if (
@@ -138,15 +139,16 @@ Return comprehensive, high-impact native analysis in strictly structured JSON:
 - phoneticUk: UK IPA
 - partOfSpeech: concise category (e.g. "口语习语", "短语动词", "形容词短语")
 - chineseMeaning: accurate, concise Chinese translation (under 15 Chinese characters)
-- register: category tag, strictly either "职场" or "日常生活" (choose the single most fitting one)
-- tags: array with either ["职场"] or ["日常生活"]
+- englishDefinition: 1 clear, simple Oxford/Collins learner's English definition
+- register: category tag, strictly either "日常生活" or "职场" (default to "日常生活" unless the expression is strictly corporate jargon)
+- tags: array with either ["日常生活"] or ["职场"]
 - level: CEFR (e.g. "A2", "B1", "B2", "C1", "C2")
-- nuance: 2-3 sentence Chinese explanation of WHEN and WHY native speakers use this expression, tone, emotion, and subtle differences
-- collocations: 2-3 high-frequency collocations, each MUST be an object with keys "phrase" and "translation", e.g. [{"phrase": "...", "translation": "..."}]
-- examples: Select and provide 2 to 3 of the MOST TYPICAL and high-frequency application scenarios where native speakers actually use "${expression}" (e.g. 1 workplace/formal communication, 1 daily life/casual conversation, and optionally 1 social/emotional context). Each scenario MUST be an object with:
-  * "scene": specific scene tag in format "[场景类别 / 具体情境]" (e.g. "[外企职场 / 会议推进]", "[日常社交 / 随性闲聊]", "[生活办事 / 突发状况]")
-  * "scenarioDescription": 1 concise sentence in Chinese explaining when/why native speakers use it in this scenario (e.g. "当讨论陷入僵局或时间已晚，体面且具亲和力地提议今天先结束时")
-  * "en": an authentic, natural, spoken/conversational English sentence demonstrating natural usage in that exact scenario
+- nuance: 2-3 sentence Chinese explanation of WHEN and WHY native speakers use this expression in everyday life, tone, emotion, and subtle differences
+- collocations: 2-3 high-frequency everyday collocations, each MUST be an object with keys "phrase" and "translation", e.g. [{"phrase": "...", "translation": "..."}]
+- examples: Provide 3 vivid, natural EVERYDAY LIFE scenarios where native speakers actually say "${expression}" in daily life (e.g. hanging out with friends, weekend trips, dining/coffee, shopping, family/home life, pets, weather, or fitness). STRICT RULE: DO NOT generate corporate, coding, meeting, finance, or office examples unless the user's Context hint explicitly requests workplace. Each scenario MUST be an object with:
+  * "scene": specific daily-life scene tag in format "[生活场景 / 具体情境]" (e.g. "[朋友聚会 / 周末约饭]", "[居家生活 / 晚间放松]", "[出门旅行 / 突发状况]")
+  * "scenarioDescription": 1 concise sentence in Chinese explaining when/why native speakers use it in this everyday life situation (e.g. "周末在家大扫除或逛街走累了，轻松提议今天就先到这儿去休息时")
+  * "en": an authentic, natural, spoken/conversational English sentence demonstrating natural usage in that exact everyday life scenario
   * "zh": accurate, natural Chinese translation
 - memoryHook: 1 memorable mnemonic hook or visual origin`;
 
@@ -246,14 +248,14 @@ app.post("/api/generate-scenarios", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Missing expression" });
     }
 
-    const prompt = `Generate 3 fresh, diverse, realistic situational practice prompts in Chinese for practicing the English expression "${expression}".
-Each scenario should be 1-2 sentences with a category prefix like [职场收工], [健身运动], [备考复习], [朋友聚会], [商务谈判].
+    const prompt = `Generate 3 fresh, diverse, realistic EVERYDAY LIFE situational practice prompts in Chinese for practicing the English expression "${expression}".
+Each scenario should be 1-2 sentences with an everyday-life category prefix like [朋友聚会], [周末出游], [居家生活], [咖啡闲聊], [美食探店], [购物砍价].
 Return ONLY a valid JSON object:
 {
   "scenarios": [
-    "[场景名称]：描述具体情境与想表达的意图...",
-    "[场景名称]：描述具体情境与想表达的意图...",
-    "[场景名称]：描述具体情境与想表达的意图..."
+    "[场景名称]：描述具体生活情境与想表达的意图...",
+    "[场景名称]：描述具体生活情境与想表达的意图...",
+    "[场景名称]：描述具体生活情境与想表达的意图..."
   ]
 }`;
 
@@ -345,6 +347,75 @@ Provide a structured linguistic and phonetic breakdown in strict JSON:
   }
 });
 
+// Endpoint: Fast dictionary lookup for word selection (Daily English Listening style popover)
+app.post("/api/lookup-word", async (req: Request, res: Response) => {
+  try {
+    const { word, sentenceContext } = req.body;
+    if (!word || typeof word !== "string") {
+      return res.status(400).json({ error: "Missing or invalid word" });
+    }
+
+    const cleanWord = word.trim().replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, '');
+    if (!cleanWord) {
+      return res.status(400).json({ error: "Invalid word" });
+    }
+
+    const cacheKey = `${cleanWord.toLowerCase()}:::${(sentenceContext || '').toLowerCase().slice(0, 80)}`;
+    if (wordLookupCache.has(cacheKey)) {
+      return res.json(wordLookupCache.get(cacheKey));
+    }
+
+    const prompt = `Act as an authoritative English-Chinese dictionary (like Collins COBUILD, Oxford Advanced, 欧路/每日英语听力词典).
+Look up the word "${cleanWord}"${sentenceContext ? ` within this sentence context: "${sentenceContext}"` : ""}.
+
+Return strictly structured JSON:
+{
+  "word": "${cleanWord}",
+  "lemma": "base/dictionary form (e.g. run for running, child for children)",
+  "phoneticUs": "US IPA phonetic (e.g. /ˈtrʌbəlˌʃuːt/)",
+  "phoneticUk": "UK IPA phonetic (e.g. /ˈtrʌbəlˌʃuːt/)",
+  "partOfSpeech": "e.g. vt. / vi. / n. / adj. / adv. / phr.",
+  "contextualMeaning": "Accurate, concise Chinese translation in the current context",
+  "definitions": [
+    {
+      "pos": "e.g. vt.",
+      "meaning": "common Chinese definition 1",
+      "enDef": "concise English definition if helpful"
+    },
+    {
+      "pos": "e.g. n.",
+      "meaning": "common Chinese definition 2"
+    }
+  ],
+  "commonPhrases": [
+    { "phrase": "high-frequency collocation 1", "meaning": "Chinese translation" },
+    { "phrase": "high-frequency collocation 2", "meaning": "Chinese translation" }
+  ],
+  "inflections": "e.g. 复数: -s | 过去式: -ed | 现在分词: -ing"
+}`;
+
+    const response = await generateContentWithRetryAndFallback({
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+      },
+    });
+
+    const parsed = JSON.parse(response.text || "{}");
+    if (!parsed.word) parsed.word = cleanWord;
+    if (!parsed.lemma) parsed.lemma = cleanWord;
+    if (!Array.isArray(parsed.definitions)) parsed.definitions = [];
+    if (!Array.isArray(parsed.commonPhrases)) parsed.commonPhrases = [];
+
+    wordLookupCache.set(cacheKey, parsed);
+    return res.json(parsed);
+  } catch (error: any) {
+    console.error("Error looking up word:", error);
+    const friendlyError = parseErrorMessage(error);
+    return res.status(503).json({ error: friendlyError });
+  }
+});
+
 // Endpoint: High-fidelity natural AI voice generation (gemini-3.8-flash-lite-tts)
 app.post("/api/tts", async (req: Request, res: Response) => {
   try {
@@ -409,25 +480,27 @@ app.post("/api/tts", async (req: Request, res: Response) => {
 // Endpoint: Evaluate user sentence (Free-form, no scenario constraints)
 app.post("/api/evaluate-sentence", async (req: Request, res: Response) => {
   try {
-    const { expression, userSentence } = req.body;
+    const { expression, userSentence, scenarioChinese, scenarioDescription } = req.body;
     if (!expression || !userSentence) {
       return res.status(400).json({ error: "Missing expression or userSentence" });
     }
 
-    const cacheKey = `v5_free_preserve_${expression.toLowerCase().trim()}:::${userSentence.toLowerCase().trim()}`;
+    const cacheKey = `v6_scene_${expression.toLowerCase().trim()}:::${userSentence.toLowerCase().trim()}:::${(scenarioChinese || "").slice(0, 30)}`;
     if (evaluationCache.has(cacheKey)) {
       return res.json(evaluationCache.get(cacheKey));
     }
 
-    const prompt = `You are a world-class bilingual native English writing coach and editor.
+    const prompt = `You are a world-class bilingual native English speaking and writing coach.
 Target English expression to practice: "${expression}"
 User's self-composed sentence: "${userSentence}"
+${scenarioChinese ? `Target Real-Life Chinese Situation/Intent: "${scenarioChinese}"` : ""}
+${scenarioDescription ? `Situational Background: "${scenarioDescription}"` : ""}
 
-TASK:
-The user freely composed their own sentence using "${expression}" WITHOUT ANY pre-imposed scenario prompt or constraint.
-1. Understand the core idea, message, and nuance the user intended to express in their sentence.
-2. Directly evaluate their sentence and how they used "${expression}".
-3. Polish and elevate the user's sentence into an authentic, highly natural native speaker version ("nativeAlternative"), strictly based on what they wrote and the expression used.
+TASK & GOAL:
+The user is practicing whether they can naturally recall and evoke "${expression}" when encountering this real-life communication scenario: "我会不会在这个场景想到并用它？"
+1. Evaluate whether the user's sentence naturally conveys the communicative intent of the scenario and whether "${expression}" is used accurately.
+2. In the Chinese feedback, specifically comment on situational fit (情境契合度) and expression evocation (在真实情境中是否自然想到并运用).
+3. Polish and elevate the user's sentence into an authentic, highly natural native speaker version ("nativeAlternative"), strictly based on what they expressed.
 
 CRITICAL INSTRUCTION - TARGET EXPRESSION MUST BE PRESERVED IN REWRITE:
 1. The student is deliberately practicing the target expression: "${expression}".
@@ -436,7 +509,7 @@ CRITICAL INSTRUCTION - TARGET EXPRESSION MUST BE PRESERVED IN REWRITE:
 4. Polish and optimize the surrounding syntax, collocations, rhythm, and natural conversational tone to elevate the user's sentence to native level.
 
 Evaluation criteria:
-1. Did the user use "${expression}" correctly according to its authentic meaning?
+1. Did the user use "${expression}" correctly and naturally to meet the situational intent?
 2. Grammar, tense, prepositions, and punctuation correctness.
 3. Natural native phrasing, flow, and conciseness.
 
@@ -446,10 +519,10 @@ Respond ONLY with a valid JSON object matching this exact format:
   "status": "perfect",
   "isGrammaticallyCorrect": true,
   "isCollocationNatural": true,
-  "feedback": "2-3 sentences of supportive Chinese coaching feedback explaining what was expressed well, grammar notes, and how to improve",
+  "feedback": "2-3 sentences of supportive Chinese coaching feedback explaining what was expressed well, how well it fits the scenario, and tips for speaking it naturally",
   "nativeAlternative": "One authentic, highly natural native speaker rewrite that MUST explicitly keep and use '${expression}'",
-  "alternativeAnalysis": "1-2 sentences in Chinese explaining how the sentence was optimized into native flow while preserving '${expression}'",
-  "praisePoints": ["亮点1", "亮点2"]
+  "alternativeAnalysis": "1-2 sentences in Chinese explaining how the sentence was optimized into native flow while preserving '${expression}' in this real-life scene",
+  "praisePoints": ["情境契合", "表达地道"]
 }`;
 
     const response = await generateContentWithRetryAndFallback({
@@ -498,22 +571,24 @@ app.post("/api/generate-combo-scenario", async (req: Request, res: Response) => 
       .join('\n');
 
     const prompt = `You are an expert bilingual English curriculum architect and creative writer.
-Task: Create an authentic, vivid Chinese situation scenario that naturally weaves together ALL of the following target English expressions:
+Task: Create an authentic, vivid EVERYDAY LIFE Chinese situation scenario AND a concrete Chinese combo example paragraph (中文串联示例) that naturally weaves together ALL of the following target English expressions:
 ${itemsSummary}
 
 Requirements:
-1. The scenario should be a coherent, realistic real-world situation (e.g. workplace sprint, international negotiation, startup pivot, unexpected travel event, or close friend conversation).
-2. Explain clearly in Chinese why and how these expressions fit naturally into the same scene.
-3. Provide a thought starter hint in Chinese to guide the learner's writing logic.
-4. Provide an authentic model English paragraph (2-3 sentences) demonstrating how a native speaker would seamlessly connect all target expressions while explicitly keeping and using each target expression (do not replace them with synonyms).
+1. The scenario MUST be a coherent, realistic everyday-life situation (e.g. weekend trip with friends, rainy day plan changes, cozy café catch-up, shopping trip, family dinner, or unexpected travel moment).
+2. "chineseComboExample": Write a concrete, natural 2-3 sentence spoken Chinese example paragraph that demonstrates EXACTLY how a person strings all these ideas together in daily life. Inside the Chinese text, gently annotate where each target expression corresponds in parentheses like **改天再约 (take a rain check)** so the learner clearly sees the connection logic!
+3. "scenarioDescription": 1-2 sentences briefly explaining the scene background.
+4. "thoughtStarter": 1 sentence in Chinese guiding the structure.
+5. "modelParagraph": One authentic model English paragraph (2-3 sentences) translating that exact Chinese combo example naturally while explicitly keeping and using EVERY target expression (do NOT replace them with synonyms).
 
 Respond ONLY with valid JSON:
 {
-  "scenarioTitle": "4-8字生动场景标题，如：外企周五紧急排障与复盘",
-  "scenarioCategory": "分类标签，如：外企职场 / 深度交流 / 商务谈判 / 旅途突发 / 日常社交",
-  "scenarioDescription": "2-3句生动具体的语境任务描述，明确角色、冲突/事件，并交代如何串联使用这几个表达",
-  "thoughtStarter": "给学习者的构思思路建议（如：先交代紧迫情况，再陈述应对表现，最后做总结提议）",
-  "modelParagraph": "母语者范例段落（英文2-3句），纯正自然地融合全部目标表达"
+  "scenarioTitle": "4-8字生动生活场景标题，如：周末遇雨改约后的火锅局",
+  "scenarioCategory": "日常社交 / 周末出游 / 居家生活 / 美食探店 / 旅途奇遇",
+  "scenarioDescription": "1-2句生活背景交代",
+  "chineseComboExample": "2-3句接地气的中文串联示例（如：周末本来约好去野餐，但突然下起大雨，我们只好先改天再约 (take a rain check)。不过好的一面 (silver lining) 是大家改在家煮了顿热气腾腾的火锅，那口热汤喝下去真是太解馋太舒坦了 (hit the spot)！）",
+  "thoughtStarter": "1句构思结构提示",
+  "modelParagraph": "2-3句地道英文范例段落，纯正自然地融合全部目标表达"
 }`;
 
     const response = await generateContentWithRetryAndFallback({
@@ -524,32 +599,45 @@ Respond ONLY with valid JSON:
     });
 
     const parsed = JSON.parse(response.text || "{}");
+    const exprNames = expressions.map((e: any) => (typeof e === 'string' ? e : e.expression));
+    const fallbackZh =
+      exprNames.length >= 2
+        ? `周末本来打算出门逛逛，中途遇到点小插曲让我觉得不如先这样（${exprNames[0]}），结果顺便发现了一个意想不到的好去处，真是太合心意了（${exprNames[1]}）！`
+        : `在日常聊天中自然用出 ${exprNames.join('、')}，分享今天发生的生活小故事。`;
+
     const safeScenario = {
-      scenarioTitle: parsed.scenarioTitle || "综合语境实战融合",
-      scenarioCategory: parsed.scenarioCategory || "高频真实生活",
+      scenarioTitle: parsed.scenarioTitle || "真实生活中文串联示例",
+      scenarioCategory: parsed.scenarioCategory || "日常高频生活",
       scenarioDescription:
         parsed.scenarioDescription ||
-        `请尝试在一段生动连贯的英语表达中，将以上 ${expressions.length} 个地道表达自然融为一体，讲述一段真实的职场沟通或生活经历。`,
+        `参考下方中文生活语境示例，试着用地道英文将这些表达顺畅串成一段日常分享。`,
+      chineseComboExample: parsed.chineseComboExample || fallbackZh,
       thoughtStarter:
         parsed.thoughtStarter ||
-        "构思建议：可以用2-3句话写成一个微场景，先描述背景，再说明过程，最后做出行动提议。",
+        "构思建议：先交代生活小背景，再顺畅过渡到感受或临时决定。",
       modelParagraph:
         parsed.modelParagraph ||
-        `In our fast-paced daily work, connecting idiomatic expressions like these helps us communicate with native clarity and warmth.`,
+        `In everyday conversations with friends, connecting natural idioms like these helps you sound relaxed, warm, and genuinely fluent.`,
     };
 
     return res.json(safeScenario);
   } catch (error: any) {
     console.error("Error generating combo scenario:", error);
-    // Graceful fallback scenario so user experience is uninterrupted
-    const fallbackList = Array.isArray(req.body.expressions)
-      ? req.body.expressions.map((e: any) => (typeof e === 'string' ? e : e.expression)).join('、')
-      : '这些表达';
+    const exprList = Array.isArray(req.body.expressions)
+      ? req.body.expressions.map((e: any) => (typeof e === 'string' ? e : e.expression))
+      : [];
+    const fallbackList = exprList.join('、') || '这些表达';
+    const fallbackZh =
+      exprList.length >= 2
+        ? `周末约朋友出门逛街走累了，本想先到这儿歇着（${exprList[0]}），后来临时看情况去了街角一家宝藏小店（${exprList[1]}），体验超级棒！`
+        : `试试用生活里发生的一件小事，把【${fallbackList}】自然串起来说一遍。`;
+
     return res.json({
-      scenarioTitle: "职场与日常综合演练",
-      scenarioCategory: "综合实战",
-      scenarioDescription: `在跨国团队协作与日常交流中，尝试写出 2-3 句英文短篇，将【${fallbackList}】自然串联起来，展现地道母语思维。`,
-      thoughtStarter: "建议分层次叙述：先交代所处背景与现状，随后说明具体行动与应对，使整段表达浑然一体。",
+      scenarioTitle: "日常生活串联参考示例",
+      scenarioCategory: "生活社交",
+      scenarioDescription: `参考下方中文生活情境，尝试写出 2-3 句英文短篇，将【${fallbackList}】自然串联起来。`,
+      chineseComboExample: fallbackZh,
+      thoughtStarter: "先交代生活背景或突发小状况，随后说明大家的反应和决定，让故事自然流畅。",
       modelParagraph: "",
     });
   }

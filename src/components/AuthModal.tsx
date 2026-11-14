@@ -90,10 +90,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-stone-900 w-full max-w-md rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-[#FFFEFA] dark:bg-stone-900 w-full max-w-md rounded-3xl shadow-2xl border border-[#EAE2D6] dark:border-stone-800 overflow-hidden relative">
         {/* Header Banner */}
-        <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 p-6 text-white relative">
+        <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-orange-500 p-6 text-white relative">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-1.5 rounded-full bg-black/15 hover:bg-black/30 transition-colors text-white cursor-pointer"
@@ -115,7 +115,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/50 p-1.5">
+        <div className="flex border-b border-[#EAE2D6] dark:border-stone-800 bg-[#F3ECE1] dark:bg-stone-800/50 p-1.5">
           <button
             onClick={() => {
               setMode('login');
@@ -123,7 +123,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             }}
             className={`flex-1 py-2 text-xs font-semibold rounded-xl flex items-center justify-center space-x-1.5 transition-all ${
               mode === 'login'
-                ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-sm'
+                ? 'bg-[#FFFEFA] dark:bg-stone-800 text-amber-900 dark:text-amber-300 shadow-sm'
                 : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
@@ -138,7 +138,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             }}
             className={`flex-1 py-2 text-xs font-semibold rounded-xl flex items-center justify-center space-x-1.5 transition-all ${
               mode === 'register'
-                ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-sm'
+                ? 'bg-[#FFFEFA] dark:bg-stone-800 text-amber-900 dark:text-amber-300 shadow-sm'
                 : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
@@ -154,8 +154,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               }}
               className={`flex-1 py-2 text-xs font-semibold rounded-xl flex items-center justify-center space-x-1.5 transition-all ${
                 mode === 'switch'
-                  ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-sm'
-                  : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+                  ? 'bg-[#FFFEFA] dark:bg-stone-800 text-amber-900 dark:text-amber-300 shadow-sm'
+                : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
               }`}
             >
               <Users className="w-3.5 h-3.5" />
@@ -188,7 +188,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="learner@nativeflow.app"
-                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-[#EAE2D6] dark:border-stone-700 bg-[#FAF6F0] dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
               </div>
@@ -205,12 +205,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="输入您的登录密码"
-                    className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full pl-9 pr-10 py-2.5 rounded-xl border border-[#EAE2D6] dark:border-stone-700 bg-[#FAF6F0] dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+                    className="absolute right-3 top-3 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -219,7 +219,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-md shadow-amber-500/20 transition-all flex items-center justify-center space-x-1.5 cursor-pointer mt-2"
+                className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-md shadow-amber-600/20 transition-all flex items-center justify-center space-x-1.5 cursor-pointer mt-2"
               >
                 <LogIn className="w-4 h-4" />
                 <span>立即登录</span>
@@ -229,7 +229,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <button
                   type="button"
                   onClick={handleFillDemo}
-                  className="text-amber-600 hover:underline font-medium cursor-pointer"
+                  className="text-amber-700 dark:text-amber-400 hover:underline font-medium cursor-pointer"
                 >
                   ⚡ 一键填入体验账号
                 </button>
@@ -257,10 +257,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       key={av}
                       type="button"
                       onClick={() => setSelectedAvatar(av)}
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg transition-transform shrink-0 ${
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center text-lg transition-transform shrink-0 cursor-pointer ${
                         selectedAvatar === av
-                          ? 'bg-amber-100 dark:bg-amber-950/60 ring-2 ring-amber-500 scale-110'
-                          : 'bg-stone-100 dark:bg-stone-800 hover:bg-stone-200'
+                          ? 'bg-[#F6EBDA] dark:bg-amber-950/60 ring-2 ring-amber-600 scale-110'
+                          : 'bg-[#F3ECE1] dark:bg-stone-800 hover:bg-[#EAE2D6]'
                       }`}
                     >
                       {av}
@@ -280,8 +280,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="如：雅思必过 / 职场进阶小王"
-                    className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    placeholder="如：日常口语 / 留学进阶"
+                    className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-[#EAE2D6] dark:border-stone-700 bg-[#FAF6F0] dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
               </div>
@@ -298,7 +298,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="yourname@domain.com"
-                    className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-[#EAE2D6] dark:border-stone-700 bg-[#FAF6F0] dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
               </div>
@@ -315,12 +315,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="设置您的账号密码"
-                    className="w-full pl-9 pr-10 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full pl-9 pr-10 py-2 rounded-xl border border-[#EAE2D6] dark:border-stone-700 bg-[#FAF6F0] dark:bg-stone-800 text-stone-900 dark:text-stone-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+                    className="absolute right-3 top-3 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -329,7 +329,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-md shadow-amber-500/20 transition-all flex items-center justify-center space-x-1.5 cursor-pointer mt-2"
+                className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-md shadow-amber-600/20 transition-all flex items-center justify-center space-x-1.5 cursor-pointer mt-2"
               >
                 <UserPlus className="w-4 h-4" />
                 <span>立即创建学习账号</span>
@@ -348,10 +348,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <button
                     key={u.id}
                     onClick={() => handleQuickSwitch(u)}
-                    className="w-full p-3 rounded-2xl border border-stone-200 dark:border-stone-700 hover:border-amber-400 hover:bg-amber-50/50 dark:hover:bg-amber-950/20 flex items-center justify-between text-left transition-all group cursor-pointer"
+                    className="w-full p-3 rounded-2xl border border-[#EAE2D6] dark:border-stone-700 hover:border-amber-400 hover:bg-[#FAF6F0] dark:hover:bg-amber-950/20 flex items-center justify-between text-left transition-all group cursor-pointer"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
+                      <div className="w-10 h-10 rounded-xl bg-[#F3ECE1] dark:bg-stone-800 flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform">
                         {u.avatar || '🦊'}
                       </div>
                       <div>
@@ -363,10 +363,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     </div>
 
                     <div className="flex items-center space-x-2">
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 font-mono">
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#F3ECE1] dark:bg-stone-800 text-stone-600 dark:text-stone-400 font-mono">
                         {(u.cards || []).length} 词
                       </span>
-                      <ArrowRight className="w-4 h-4 text-stone-400 group-hover:text-amber-600 group-hover:translate-x-1 transition-all" />
+                      <ArrowRight className="w-4 h-4 text-stone-400 group-hover:text-amber-700 group-hover:translate-x-1 transition-all" />
                     </div>
                   </button>
                 ))}
@@ -376,7 +376,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setMode('register')}
-                  className="w-full py-2.5 rounded-xl border border-dashed border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
+                  className="w-full py-2.5 rounded-xl border border-dashed border-[#D6CBB9] dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-[#FAF6F0] dark:hover:bg-stone-800 text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   <span>+ 添加并注册新账号</span>

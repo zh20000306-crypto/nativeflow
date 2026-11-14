@@ -15,10 +15,14 @@ import {
   ArrowRight,
   PenTool,
   BookOpen,
+  Lightbulb,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import {
   ExpressionCard,
   ComboEvaluationResult,
+  ComboScenario,
   UserSentenceRecord,
 } from '../types/card';
 import { speakEnglish } from '../utils/audio';
@@ -53,6 +57,11 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [analysisSentence, setAnalysisSentence] = useState<string | null>(null);
 
+  // Chinese Combo Scenario Example State
+  const [comboScenario, setComboScenario] = useState<ComboScenario | null>(null);
+  const [isLoadingScenario, setIsLoadingScenario] = useState(false);
+  const [showModelEnglish, setShowModelEnglish] = useState(false);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
@@ -65,6 +74,34 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
     return shuffled.slice(0, count);
   };
 
+  // Fetch Chinese combo scenario example for the active card group
+  const fetchComboScenario = async (targetCards: ExpressionCard[]) => {
+    if (targetCards.length === 0) return;
+    setIsLoadingScenario(true);
+    setShowModelEnglish(false);
+    try {
+      const res = await fetch('/api/generate-combo-scenario', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          expressions: targetCards.map((c) => ({
+            expression: c.expression,
+            chineseMeaning: c.chineseMeaning,
+            register: c.register,
+          })),
+        }),
+      });
+      if (res.ok) {
+        const data: ComboScenario = await res.json();
+        setComboScenario(data);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch combo scenario:', err);
+    } finally {
+      setIsLoadingScenario(false);
+    }
+  };
+
   // Initialize random selection on mount or when targetCount changes
   useEffect(() => {
     if (cards.length >= 2) {
@@ -74,6 +111,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
       setEvaluation(null);
       setErrorMsg(null);
       setHasSaved(false);
+      fetchComboScenario(sampled);
     }
   }, [targetCount]);
 
@@ -86,6 +124,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
     setEvaluation(null);
     setErrorMsg(null);
     setHasSaved(false);
+    fetchComboScenario(sampled);
   };
 
   // Swap out a single expression card
@@ -105,6 +144,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
     setEvaluation(null);
     setErrorMsg(null);
     setHasSaved(false);
+    fetchComboScenario(newSelected);
   };
 
   // Real-time detection of which expressions the user has typed
@@ -138,7 +178,10 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           expressions: selectedCards.map((c) => c.expression),
-          scenarioDescription: '用户纯自主构思造句，无任何预设场景或命题限制',
+          scenarioDescription:
+            comboScenario?.chineseComboExample ||
+            comboScenario?.scenarioDescription ||
+            '日常生活对话与经历分享，自由运用所选表达',
           userParagraph: userParagraph.trim(),
         }),
       });
@@ -193,8 +236,8 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
 
   if (cards.length < 2) {
     return (
-      <div className="max-w-2xl mx-auto py-12 px-6 text-center space-y-6 bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-xl">
-        <div className="w-16 h-16 rounded-3xl bg-amber-100 dark:bg-amber-950/60 flex items-center justify-center text-amber-600 dark:text-amber-400 mx-auto">
+      <div className="max-w-2xl mx-auto py-12 px-6 text-center space-y-6 bg-[#FFFEFA] dark:bg-stone-900 rounded-3xl border border-[#EAE2D6] dark:border-stone-800 shadow-sm">
+        <div className="w-16 h-16 rounded-3xl bg-[#F6EBDA] dark:bg-amber-950/60 flex items-center justify-center text-amber-700 dark:text-amber-400 mx-auto">
           <Layers className="w-8 h-8" />
         </div>
         <div className="space-y-2">
@@ -208,7 +251,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
         {onBackToFlashcards && (
           <button
             onClick={onBackToFlashcards}
-            className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-md transition-all cursor-pointer"
+            className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-sm transition-all cursor-pointer"
           >
             返回单卡复习
           </button>
@@ -228,23 +271,23 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
       )}
 
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 border border-amber-500/20">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-3xl bg-[#F6EBDA]/65 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-900/40">
         <div>
-          <div className="flex items-center space-x-2 text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1">
-            <Sparkles className="w-4 h-4" />
+          <div className="flex items-center space-x-2 text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider mb-1">
+            <Sparkles className="w-4 h-4 text-amber-600" />
             <span>Expression Synergy Challenge · 自主多词串联实战</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold font-serif text-stone-900 dark:text-stone-100">
             随机抽取表达 · 自主连词成段
           </h2>
-          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-            无任何预设场景与命题限制。自由发挥灵感，将抽取的表达自然融合进你自己的英文段落中。
+          <p className="text-xs text-stone-600 dark:text-stone-400 mt-1">
+            参考下方的中文生活串联示例，或自由发挥生活故事，将抽取的表达自然融合进英文段落中。
           </p>
         </div>
 
         {/* Count Selector & Re-roll */}
         <div className="flex items-center space-x-2 shrink-0">
-          <div className="flex p-1 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs font-semibold">
+          <div className="flex p-1 rounded-xl bg-[#FFFEFA] dark:bg-stone-800 border border-[#EAE2D6] dark:border-stone-700 text-xs font-semibold">
             {[2, 3, 4].map((num) => (
               <button
                 key={num}
@@ -253,7 +296,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
                 onClick={() => setTargetCount(num)}
                 className={`px-3 py-1.5 rounded-lg transition-all ${
                   targetCount === num
-                    ? 'bg-amber-500 text-white shadow-sm'
+                    ? 'bg-amber-600 text-white shadow-sm'
                     : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'
                 } ${cards.length < num ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
               >
@@ -265,10 +308,10 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
           <button
             type="button"
             onClick={handleRerollAll}
-            className="p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 hover:border-amber-400 hover:text-amber-600 transition-colors shadow-sm cursor-pointer group"
+            className="p-2.5 rounded-xl border border-[#EAE2D6] dark:border-stone-700 bg-[#FFFEFA] dark:bg-stone-800 hover:border-amber-400 hover:text-amber-700 transition-colors shadow-2xs cursor-pointer group"
             title="换一组随机表达"
           >
-            <Shuffle className="w-4 h-4 text-stone-500 group-hover:text-amber-600 group-hover:rotate-180 transition-transform duration-300" />
+            <Shuffle className="w-4 h-4 text-stone-500 group-hover:text-amber-700 group-hover:rotate-180 transition-transform duration-300" />
           </button>
         </div>
       </div>
@@ -278,7 +321,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
         <div className="flex items-center justify-between text-xs font-bold text-stone-600 dark:text-stone-400 px-1">
           <div className="flex items-center space-x-2">
             <span>🎯 本轮需串联融入的 {selectedCards.length} 个目标表达：</span>
-            <span className="font-mono text-amber-600 dark:text-amber-400">
+            <span className="font-mono text-amber-800 dark:text-amber-400">
               ({detectedCount} / {selectedCards.length} 已检测到)
             </span>
           </div>
@@ -293,13 +336,13 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
               key={card.id}
               className={`p-4 rounded-2xl border transition-all relative flex flex-col justify-between ${
                 isIncluded
-                  ? 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 shadow-md ring-1 ring-emerald-500/40'
-                  : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-sm hover:border-amber-300'
+                  ? 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/30 shadow-sm ring-1 ring-emerald-500/40'
+                  : 'border-[#EAE2D6] dark:border-stone-800 bg-[#FFFEFA] dark:bg-stone-900 shadow-2xs hover:border-amber-300'
               }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#F6EBDA] dark:bg-stone-800 text-[#8A4B0F] dark:text-stone-400">
                     #{idx + 1} · {card.register || '日常'}
                   </span>
                   <div className="flex items-center space-x-1">
@@ -315,7 +358,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
                     <button
                       type="button"
                       onClick={() => handleSwapCard(idx)}
-                      className="p-1 rounded-md text-stone-400 hover:text-amber-600 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors ml-1 cursor-pointer"
+                      className="p-1 rounded-md text-stone-400 hover:text-amber-700 hover:bg-[#F3ECE1] dark:hover:bg-stone-800 transition-colors ml-1 cursor-pointer"
                       title="单独更换这个词"
                     >
                       <RefreshCw className="w-3 h-3" />
@@ -330,7 +373,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
                   <button
                     type="button"
                     onClick={() => speakEnglish(card.expression)}
-                    className="p-0.5 text-stone-400 hover:text-amber-600 transition-colors cursor-pointer"
+                    className="p-0.5 text-stone-400 hover:text-amber-700 transition-colors cursor-pointer"
                   >
                     <Volume2 className="w-3 h-3" />
                   </button>
@@ -352,15 +395,96 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
       </div>
 
       {/* Writing Arena */}
-      <div className="p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xl space-y-4">
-        <div className="p-4 sm:p-5 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 space-y-2">
-          <div className="flex items-center space-x-2 text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
-            <PenTool className="w-3.5 h-3.5 text-amber-600" />
-            <span>纯自主串联造句 · 无命题场景限制</span>
+      <div className="p-6 rounded-3xl bg-[#FFFEFA] dark:bg-stone-900 border border-[#EAE2D6] dark:border-stone-800 shadow-sm space-y-4">
+        {/* Chinese Combo Example Card */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF6F0] dark:bg-amber-950/25 border border-amber-200/70 dark:border-amber-900/50 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center space-x-2 text-xs font-bold text-amber-900 dark:text-amber-300 uppercase tracking-wider">
+              <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              <span>中文生活串联示例（灵感参考）</span>
+              {comboScenario?.scenarioCategory && (
+                <span className="px-2 py-0.5 rounded-md bg-[#F6EBDA] dark:bg-stone-800 text-[10px] font-medium text-[#8A4B0F] dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/50">
+                  {comboScenario.scenarioCategory}
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center space-x-2">
+              {comboScenario?.modelParagraph && (
+                <button
+                  type="button"
+                  onClick={() => setShowModelEnglish(!showModelEnglish)}
+                  className="text-[11px] px-2.5 py-1 rounded-lg bg-[#FFFEFA] dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:text-amber-800 border border-[#EAE2D6] dark:border-stone-700 flex items-center space-x-1 transition-colors cursor-pointer"
+                >
+                  {showModelEnglish ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  <span>{showModelEnglish ? '收起英文范例' : '偷看英文范例'}</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => fetchComboScenario(selectedCards)}
+                disabled={isLoadingScenario}
+                className="text-[11px] px-2.5 py-1 rounded-lg bg-[#FFFEFA] dark:bg-stone-800 text-amber-800 dark:text-amber-300 hover:bg-[#F6EBDA] dark:hover:bg-amber-950/50 border border-amber-200/80 dark:border-amber-800/70 flex items-center space-x-1 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3 h-3 ${isLoadingScenario ? 'animate-spin' : ''}`} />
+                <span>{isLoadingScenario ? '生成中...' : '换个中文示例'}</span>
+              </button>
+            </div>
           </div>
-          <p className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed font-sans">
-            根据你想表达的任何真实工作、生活经历或自由观点，写下 1-3 句英文将上方的目标表达连缀成段。AI 导师将直接基于你的句子和用词优化为纯正母语表达，并严格保留全部目标表达！
-          </p>
+
+          {isLoadingScenario && !comboScenario ? (
+            <div className="space-y-2 py-2 animate-pulse">
+              <div className="h-3.5 bg-amber-200/50 dark:bg-amber-900/40 rounded w-1/3" />
+              <div className="h-4 bg-amber-200/40 dark:bg-amber-900/30 rounded w-full" />
+              <div className="h-4 bg-amber-200/40 dark:bg-amber-900/30 rounded w-5/6" />
+            </div>
+          ) : comboScenario ? (
+            <div className="space-y-2">
+              {comboScenario.scenarioTitle && (
+                <div className="text-xs font-bold text-stone-700 dark:text-stone-200">
+                  🎬 {comboScenario.scenarioTitle}
+                </div>
+              )}
+
+              {/* Chinese Combo Example Paragraph */}
+              <p className="text-sm sm:text-base font-medium text-stone-900 dark:text-stone-100 leading-relaxed bg-[#FFFEFA] dark:bg-stone-900/60 p-3.5 rounded-xl border border-[#EAE2D6] dark:border-amber-900/40">
+                “{comboScenario.chineseComboExample || comboScenario.scenarioDescription}”
+              </p>
+
+              {comboScenario.thoughtStarter && (
+                <p className="text-[11px] text-stone-500 dark:text-stone-400">
+                  💡 思路提示：{comboScenario.thoughtStarter}（也可以完全按你自己想到的生活小故事自由发挥！）
+                </p>
+              )}
+
+              {/* Optional English Reference Model */}
+              {showModelEnglish && comboScenario.modelParagraph && (
+                <div className="mt-2 p-3.5 rounded-xl bg-[#FFFEFA] dark:bg-stone-900 border border-amber-200 dark:border-amber-800 space-y-1.5 animate-in fade-in">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-amber-800 dark:text-amber-400">
+                      📖 对应英文示范：
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => speakEnglish(comboScenario.modelParagraph || '')}
+                      className="inline-flex items-center space-x-1 text-[11px] text-amber-800 hover:text-amber-950 dark:text-amber-300 font-medium cursor-pointer"
+                    >
+                      <Volume2 className="w-3.5 h-3.5" />
+                      <span>朗读示范</span>
+                    </button>
+                  </div>
+                  <p className="text-xs sm:text-sm font-serif italic text-stone-800 dark:text-stone-200 leading-relaxed">
+                    "{comboScenario.modelParagraph}"
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed font-sans">
+              根据你想表达的任何真实生活经历或趣事，写下 1-3 句英文将上方的目标表达连缀成段。AI 导师将直接基于你的句子和用词优化为纯正母语表达！
+            </p>
+          )}
         </div>
 
         {/* User Writing Form */}
@@ -382,7 +506,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
                 }
               }}
               placeholder="请用英语写下 1-3 句话的小段落，将上方目标表达自然融入..."
-              className="w-full p-4 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50/70 dark:bg-stone-800/60 text-stone-900 dark:text-stone-100 text-sm sm:text-base font-serif focus:outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed placeholder:font-sans placeholder:text-stone-400"
+              className="w-full p-4 rounded-2xl border border-[#EAE2D6] dark:border-stone-700 bg-white dark:bg-stone-800/60 text-stone-900 dark:text-stone-100 text-sm sm:text-base font-serif focus:outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed placeholder:font-sans placeholder:text-stone-400"
             />
             <div className="absolute right-3 bottom-3 flex items-center space-x-2 text-xs text-stone-400">
               <span>{userParagraph.trim().split(/\s+/).filter(Boolean).length} 词</span>
@@ -417,7 +541,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
             <button
               type="submit"
               disabled={isSubmitting || !userParagraph.trim()}
-              className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold text-sm shadow-lg shadow-amber-500/25 flex items-center justify-center space-x-2 transition-all hover:scale-102 cursor-pointer disabled:cursor-not-allowed"
+              className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-bold text-sm shadow-sm flex items-center justify-center space-x-2 transition-all hover:scale-102 cursor-pointer disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
@@ -449,17 +573,17 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
 
       {/* AI Evaluation Result Card */}
       {evaluation && (
-        <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
+        <div className="p-6 sm:p-8 rounded-3xl bg-[#FFFEFA] dark:bg-stone-900 border border-[#EAE2D6] dark:border-stone-800 shadow-lg space-y-6 animate-in fade-in zoom-in-95 duration-200">
           {/* Header Score & Status */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-stone-100 dark:border-stone-800 gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-[#EFE8DC] dark:border-stone-800 gap-4">
             <div className="flex items-center space-x-4">
               <div
-                className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center font-serif text-white font-black shadow-lg ${
+                className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center font-serif text-white font-black shadow-md ${
                   evaluation.overallScore >= 90
-                    ? 'bg-gradient-to-tr from-emerald-500 to-teal-400 shadow-emerald-500/20'
+                    ? 'bg-gradient-to-tr from-emerald-600 to-emerald-500 shadow-emerald-500/20'
                     : evaluation.overallScore >= 80
-                    ? 'bg-gradient-to-tr from-amber-500 to-orange-400 shadow-amber-500/20'
-                    : 'bg-gradient-to-tr from-rose-500 to-orange-500 shadow-rose-500/20'
+                    ? 'bg-gradient-to-tr from-amber-700 to-amber-500 shadow-amber-500/20'
+                    : 'bg-gradient-to-tr from-rose-500 to-amber-500 shadow-rose-500/20'
                 }`}
               >
                 <span className="text-2xl leading-none">{evaluation.overallScore}</span>
@@ -494,7 +618,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
               className={`px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center justify-center space-x-1.5 transition-all cursor-pointer shrink-0 ${
                 hasSaved
                   ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 cursor-default'
-                  : 'bg-stone-900 hover:bg-stone-800 text-white dark:bg-stone-100 dark:text-stone-900 shadow-md'
+                  : 'bg-amber-600 hover:bg-amber-700 text-white shadow-sm'
               }`}
             >
               {hasSaved ? (
@@ -514,14 +638,14 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
           {/* Praise Points Pills */}
           {evaluation.praisePoints && evaluation.praisePoints.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-bold text-amber-700 dark:text-amber-400 mr-1 flex items-center space-x-1">
+              <span className="text-xs font-bold text-amber-800 dark:text-amber-300 mr-1 flex items-center space-x-1">
                 <Award className="w-3.5 h-3.5" />
                 <span>表现亮点：</span>
               </span>
               {evaluation.praisePoints.map((point, idx) => (
                 <span
                   key={idx}
-                  className="px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/50 dark:border-amber-900/50 text-amber-800 dark:text-amber-300 text-xs font-semibold"
+                  className="px-2.5 py-1 rounded-xl bg-[#F6EBDA] dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-900/50 text-[#8A4B0F] dark:text-amber-300 text-xs font-semibold"
                 >
                   ✓ {point}
                 </span>
@@ -573,9 +697,9 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
           </div>
 
           {/* Cohesion & Flow Analysis */}
-          <div className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-800/40 border border-stone-200/70 dark:border-stone-800 space-y-1.5">
+          <div className="p-4 rounded-2xl bg-[#FAF6F0] dark:bg-stone-800/40 border border-[#EAE2D6] dark:border-stone-800 space-y-1.5">
             <div className="text-xs font-bold text-stone-700 dark:text-stone-300 flex items-center space-x-1.5">
-              <Layers className="w-3.5 h-3.5 text-amber-600" />
+              <Layers className="w-3.5 h-3.5 text-amber-700" />
               <span>段落行文连贯性与母语节奏点评 (Cohesion & Flow)</span>
             </div>
             <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
@@ -584,10 +708,10 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
           </div>
 
           {/* Native Speaker Rewrite Showcase */}
-          <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-amber-500/5 border border-amber-500/30 space-y-3">
+          <div className="p-5 sm:p-6 rounded-3xl bg-[#F6EBDA]/60 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-900/50 space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider">
-                <Sparkles className="w-4 h-4 fill-current" />
+              <div className="flex items-center space-x-2 text-xs font-bold text-amber-900 dark:text-amber-300 uppercase tracking-wider">
+                <Sparkles className="w-4 h-4 fill-current text-amber-600" />
                 <span>母语者高阶重构范例 (Native Speaker Rewrite)</span>
               </div>
 
@@ -595,16 +719,16 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
                 <button
                   type="button"
                   onClick={() => setAnalysisSentence(evaluation.nativeAlternative)}
-                  className="p-1.5 px-2 rounded-xl bg-white/70 dark:bg-stone-800/70 hover:bg-white text-stone-600 dark:text-stone-300 hover:text-amber-600 transition-colors shadow-xs cursor-pointer flex items-center space-x-1 text-xs"
+                  className="p-1.5 px-2 rounded-xl bg-[#FFFEFA] dark:bg-stone-800 hover:bg-[#FAF6F0] text-stone-600 dark:text-stone-300 hover:text-amber-800 transition-colors shadow-xs cursor-pointer flex items-center space-x-1 text-xs border border-[#EAE2D6] dark:border-stone-700"
                   title="逐词解析词义与读音 (支持长按)"
                 >
-                  <BookOpen className="w-3.5 h-3.5 text-amber-500" />
+                  <BookOpen className="w-3.5 h-3.5 text-amber-600" />
                   <span>解析词义</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => speakEnglish(evaluation.nativeAlternative)}
-                  className="p-1.5 rounded-xl bg-white/70 dark:bg-stone-800/70 hover:bg-white text-stone-600 dark:text-stone-300 hover:text-amber-600 transition-colors shadow-xs cursor-pointer"
+                  className="p-1.5 rounded-xl bg-[#FFFEFA] dark:bg-stone-800 hover:bg-[#FAF6F0] text-stone-600 dark:text-stone-300 hover:text-amber-800 transition-colors shadow-xs cursor-pointer border border-[#EAE2D6] dark:border-stone-700"
                   title="朗读重写范例"
                 >
                   <Volume2 className="w-4 h-4" />
@@ -612,7 +736,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
                 <button
                   type="button"
                   onClick={handleCopyRewrite}
-                  className="p-1.5 rounded-xl bg-white/70 dark:bg-stone-800/70 hover:bg-white text-stone-600 dark:text-stone-300 hover:text-amber-600 transition-colors shadow-xs cursor-pointer"
+                  className="p-1.5 rounded-xl bg-[#FFFEFA] dark:bg-stone-800 hover:bg-[#FAF6F0] text-stone-600 dark:text-stone-300 hover:text-amber-800 transition-colors shadow-xs cursor-pointer border border-[#EAE2D6] dark:border-stone-700"
                   title="复制范例"
                 >
                   {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
@@ -624,8 +748,8 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
               "{evaluation.nativeAlternative}"
             </p>
 
-            <div className="pt-2 border-t border-amber-500/20 text-xs text-stone-600 dark:text-stone-300 flex items-start space-x-2">
-              <span className="font-bold text-amber-700 dark:text-amber-400 shrink-0">
+            <div className="pt-2 border-t border-amber-200/60 dark:border-amber-900/40 text-xs text-stone-600 dark:text-stone-300 flex items-start space-x-2">
+              <span className="font-bold text-amber-900 dark:text-amber-300 shrink-0">
                 💎 润色解析：
               </span>
               <span>{evaluation.alternativeAnalysis}</span>
@@ -637,7 +761,7 @@ export const ComboSentenceChallenge: React.FC<ComboSentenceChallengeProps> = ({
             <button
               type="button"
               onClick={handleRerollAll}
-              className="px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs sm:text-sm shadow-md shadow-amber-500/20 flex items-center space-x-2 transition-all hover:scale-102 cursor-pointer"
+              className="px-5 py-2.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm shadow-sm flex items-center space-x-2 transition-all hover:scale-102 cursor-pointer"
             >
               <span>抽取下一组表达挑战</span>
               <ArrowRight className="w-4 h-4" />

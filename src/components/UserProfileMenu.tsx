@@ -89,7 +89,7 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
     return (
       <button
         onClick={() => onOpenAuth('login')}
-        className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm shadow-amber-500/20 flex items-center space-x-1.5 transition-all hover:scale-102 cursor-pointer"
+        className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-sm shadow-amber-600/20 flex items-center space-x-1.5 transition-all hover:scale-102 cursor-pointer"
       >
         <Sparkles className="w-3.5 h-3.5" />
         <span>登录 / 注册</span>
@@ -102,9 +102,9 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
       {/* Trigger Button in Navbar */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center space-x-2 p-1.5 rounded-2xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors border border-transparent hover:border-stone-200 dark:hover:border-stone-700 cursor-pointer group"
+        className="flex items-center space-x-2 p-1.5 rounded-2xl hover:bg-[#F3ECE1] dark:hover:bg-stone-800 transition-colors border border-transparent hover:border-[#EAE2D6] dark:hover:border-stone-700 cursor-pointer group"
       >
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-base shadow-sm shrink-0 group-hover:scale-105 transition-transform">
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-700 to-orange-500 flex items-center justify-center text-base shadow-sm shrink-0 group-hover:scale-105 transition-transform">
           {user.avatar || '🦊'}
         </div>
         <div className="text-left hidden sm:block">
@@ -122,13 +122,13 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
 
       {/* Profile Dropdown Card */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-stone-800 rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-700 p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute right-0 mt-2 w-80 bg-[#FFFEFA] dark:bg-stone-900 rounded-3xl shadow-2xl border border-[#EAE2D6] dark:border-stone-700 p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
           {!isEditing ? (
             <>
               {/* User Header */}
-              <div className="flex items-start justify-between pb-3 border-b border-stone-100 dark:border-stone-700/60">
+              <div className="flex items-start justify-between pb-3 border-b border-[#EAE2D6] dark:border-stone-800">
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/60 flex items-center justify-center text-2xl shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-[#F6EBDA] dark:bg-amber-950/60 flex items-center justify-center text-2xl shrink-0">
                     {user.avatar || '🦊'}
                   </div>
                   <div className="overflow-hidden">
@@ -136,7 +136,7 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
                       {user.name}
                     </div>
                     <div className="text-xs text-stone-400 truncate">{user.email}</div>
-                    <div className="inline-flex items-center space-x-1 text-[10px] text-amber-600 dark:text-amber-400 font-medium mt-0.5">
+                    <div className="inline-flex items-center space-x-1 text-[10px] text-amber-700 dark:text-amber-400 font-medium mt-0.5">
                       <Flame className="w-3 h-3 fill-current" />
                       <span>已连续打卡 {streak} 天</span>
                     </div>
@@ -150,7 +150,7 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
                     setEditGoal(user.dailyGoal || 5);
                     setIsEditing(true);
                   }}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors"
+                  className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-[#F3ECE1] dark:hover:bg-stone-800 transition-colors cursor-pointer"
                   title="编辑资料"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
@@ -158,18 +158,18 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
               </div>
 
               {/* Today's Goal Progress */}
-              <div className="my-3.5 p-3 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/40">
+              <div className="my-3.5 p-3 rounded-2xl bg-[#FAF6F0] dark:bg-amber-950/20 border border-[#EAE2D6] dark:border-amber-900/40">
                 <div className="flex items-center justify-between text-xs font-semibold mb-1.5 text-stone-700 dark:text-stone-300">
                   <span className="flex items-center space-x-1">
                     <span>🎯 今日造句目标</span>
                   </span>
-                  <span className="font-mono text-amber-600 dark:text-amber-400">
+                  <span className="font-mono text-[#8A4B0F] dark:text-amber-300">
                     {todaySentencesCount} / {goal} 句 ({progressPercent}%)
                   </span>
                 </div>
-                <div className="w-full h-2 rounded-full bg-stone-200 dark:bg-stone-700 overflow-hidden">
+                <div className="w-full h-2 rounded-full bg-[#EFE8DC] dark:bg-stone-700 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-300"
+                    className="h-full bg-gradient-to-r from-amber-600 to-orange-500 transition-all duration-300"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
@@ -177,17 +177,17 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-2 my-3 text-center">
-                <div className="p-2.5 rounded-xl bg-stone-50 dark:bg-stone-900/50 border border-stone-100 dark:border-stone-800">
+                <div className="p-2.5 rounded-xl bg-[#FAF6F0] dark:bg-stone-900/50 border border-[#EAE2D6] dark:border-stone-800">
                   <div className="text-base font-extrabold text-stone-900 dark:text-stone-100 font-mono">
                     {cards.length}
                   </div>
                   <div className="text-[11px] text-stone-400 flex items-center justify-center space-x-1 mt-0.5">
-                    <BookOpen className="w-3 h-3 text-amber-500" />
+                    <BookOpen className="w-3 h-3 text-amber-600" />
                     <span>词库总词数</span>
                   </div>
                 </div>
 
-                <div className="p-2.5 rounded-xl bg-stone-50 dark:bg-stone-900/50 border border-stone-100 dark:border-stone-800">
+                <div className="p-2.5 rounded-xl bg-[#FAF6F0] dark:bg-stone-900/50 border border-[#EAE2D6] dark:border-stone-800">
                   <div className="text-base font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
                     {totalSentences}
                   </div>
@@ -199,13 +199,13 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-2 border-t border-stone-100 dark:border-stone-700/60 space-y-1">
+              <div className="pt-2 border-t border-[#EAE2D6] dark:border-stone-800 space-y-1">
                 <button
                   onClick={() => {
                     setIsOpen(false);
                     onOpenAuth('switch');
                   }}
-                  className="w-full px-3 py-2 rounded-xl text-left text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 flex items-center space-x-2 transition-colors cursor-pointer"
+                  className="w-full px-3 py-2 rounded-xl text-left text-xs text-stone-700 dark:text-stone-200 hover:bg-[#F3ECE1] dark:hover:bg-stone-800 flex items-center space-x-2 transition-colors cursor-pointer"
                 >
                   <Users className="w-4 h-4 text-stone-400" />
                   <span>切换账号 / 登录其他账号</span>
@@ -226,7 +226,7 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
           ) : (
             /* Editing Profile View */
             <div className="space-y-3">
-              <div className="text-xs font-bold text-stone-900 dark:text-stone-100 pb-1 border-b border-stone-100 dark:border-stone-700">
+              <div className="text-xs font-bold text-stone-900 dark:text-stone-100 pb-1 border-b border-[#EAE2D6] dark:border-stone-800">
                 修改个人资料与每日目标
               </div>
 
@@ -237,10 +237,10 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
                     <button
                       key={av}
                       onClick={() => setEditAvatar(av)}
-                      className={`w-7 h-7 rounded-lg text-sm flex items-center justify-center shrink-0 ${
+                      className={`w-7 h-7 rounded-lg text-sm flex items-center justify-center shrink-0 cursor-pointer ${
                         editAvatar === av
-                          ? 'bg-amber-100 dark:bg-amber-950 ring-2 ring-amber-500'
-                          : 'bg-stone-100 dark:bg-stone-800'
+                          ? 'bg-[#F6EBDA] dark:bg-amber-950 ring-2 ring-amber-600'
+                          : 'bg-[#F3ECE1] dark:bg-stone-800'
                       }`}
                     >
                       {av}
@@ -255,7 +255,7 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900"
+                  className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-[#EAE2D6] dark:border-stone-700 bg-[#FAF6F0] dark:bg-stone-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-amber-500"
                 />
               </div>
 
@@ -269,10 +269,10 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
                       key={num}
                       type="button"
                       onClick={() => setEditGoal(num)}
-                      className={`flex-1 py-1 rounded-lg text-xs font-medium border ${
+                      className={`flex-1 py-1 rounded-lg text-xs font-medium border cursor-pointer ${
                         editGoal === num
-                          ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300'
-                          : 'border-stone-200 dark:border-stone-700 text-stone-600'
+                          ? 'border-amber-600 bg-[#F6EBDA] dark:bg-amber-950/40 text-[#8A4B0F] dark:text-amber-300'
+                          : 'border-[#EAE2D6] dark:border-stone-700 text-stone-600'
                       }`}
                     >
                       {num}句
@@ -285,14 +285,14 @@ export const UserProfileMenu: React.FC<UserProfileMenuProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="flex-1 py-1.5 text-xs rounded-lg border border-stone-200 dark:border-stone-700 text-stone-600"
+                  className="flex-1 py-1.5 text-xs rounded-lg border border-[#EAE2D6] dark:border-stone-700 text-stone-600 cursor-pointer"
                 >
                   取消
                 </button>
                 <button
                   type="button"
                   onClick={handleSaveProfile}
-                  className="flex-1 py-1.5 text-xs rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold flex items-center justify-center space-x-1"
+                  className="flex-1 py-1.5 text-xs rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold flex items-center justify-center space-x-1 cursor-pointer"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>保存修改</span>

@@ -72,3 +72,47 @@ export function tokenizeSentenceInstant(
     };
   });
 }
+
+export interface SentenceSegment {
+  text: string;
+  isWord: boolean;
+  cleanWord?: string;
+  isTarget?: boolean;
+}
+
+/**
+ * Splits a full sentence into alternating words and punctuations/spaces
+ * so the sentence can be rendered naturally with clickable words.
+ */
+export function splitSentenceTokens(
+  sentence: string,
+  targetExpression?: string
+): SentenceSegment[] {
+  if (!sentence) return [];
+
+  const targetLower = (targetExpression || '').toLowerCase();
+  // Regex to match words (letters with apostrophes or hyphens) vs non-words
+  const regex = /([A-Za-z]+(?:'[A-Za-z]+)?)|([^A-Za-z]+)/g;
+  const segments: SentenceSegment[] = [];
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(sentence)) !== null) {
+    if (match[1]) {
+      const cleanWord = match[1];
+      const isTarget = targetLower ? targetLower.includes(cleanWord.toLowerCase()) : false;
+      segments.push({
+        text: match[1],
+        isWord: true,
+        cleanWord,
+        isTarget,
+      });
+    } else if (match[2]) {
+      segments.push({
+        text: match[2],
+        isWord: false,
+      });
+    }
+  }
+
+  return segments;
+}

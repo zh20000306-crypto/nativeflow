@@ -82,6 +82,7 @@ export interface ComboScenario {
   scenarioTitle: string;
   scenarioCategory: string;
   scenarioDescription: string;
+  chineseComboExample?: string;
   thoughtStarter?: string;
   modelParagraph?: string;
 }
@@ -133,5 +134,64 @@ export interface SentenceAnalysisResult {
   keyPhrases?: { phrase: string; phonetic?: string; meaning: string }[];
   grammarBreakdown?: string;
   nuanceNote?: string;
+}
+
+export interface DictionaryLookupResult {
+  word: string;
+  lemma?: string;
+  phoneticUs?: string;
+  phoneticUk?: string;
+  partOfSpeech?: string;
+  contextualMeaning?: string;
+  definitions?: { pos?: string; meaning: string; enDef?: string }[];
+  commonPhrases?: { phrase: string; meaning: string }[];
+  inflections?: string;
+}
+
+export interface VlogProsodyWord {
+  text: string;
+  isStressed?: boolean;
+  weakForm?: string;
+  isLinkedToNext?: boolean;
+  intonationArrow?: '↗' | '↘' | string;
+  isKeyExpression?: boolean;
+}
+
+export interface VlogHighlightedExpression {
+  expression: string;
+  chineseMeaning: string;
+  nuance?: string;
+  collocation?: string;
+}
+
+export interface VlogTranscriptLine {
+  id: string;
+  startSeconds: number;
+  endSeconds: number;
+  textEn: string;
+  textZh: string;
+  prosodyTip?: string;
+  highlightedExpression?: VlogHighlightedExpression;
+  prosodyWords?: VlogProsodyWord[];
+}
+
+export interface VlogExpressionRef {
+  expression: string;
+  meaning: string;
+  lineId: string;
+}
+
+export interface VlogClip {
+  id: string;
+  title: string;
+  vlogger: string;
+  category: string;
+  level: string;
+  durationSeconds: number;
+  videoUrl: string;
+  thumbnailUrl: string;
+  contextDescription: string;
+  expressionsList: VlogExpressionRef[];
+  transcript: VlogTranscriptLine[];
 }
 

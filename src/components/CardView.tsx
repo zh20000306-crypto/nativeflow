@@ -68,14 +68,14 @@ export const CardView: React.FC<CardViewProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200/90 dark:border-stone-800 shadow-xl overflow-hidden transition-all duration-300">
+    <div className="bg-[#FFFEFA] dark:bg-stone-900 rounded-3xl border border-[#EAE2D6] dark:border-stone-800 shadow-sm overflow-hidden transition-all duration-300">
       {/* Top Bar */}
-      <div className="px-6 py-4 bg-stone-50/70 dark:bg-stone-800/40 border-b border-stone-200/60 dark:border-stone-800 flex items-center justify-between">
+      <div className="px-6 py-4 bg-[#FAF6F0] dark:bg-stone-800/40 border-b border-[#EFE8DC] dark:border-stone-800 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <span className="px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 text-xs font-semibold">
-            {card.register || '地道表达'}
+          <span className="px-2.5 py-1 rounded-md bg-[#F6EBDA] dark:bg-amber-950/70 text-[#8A4B0F] dark:text-amber-300 text-xs font-semibold border border-amber-200/70 dark:border-amber-800/60">
+            {card.register || '日常生活'}
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-stone-200/70 dark:bg-stone-700/60 text-stone-700 dark:text-stone-300 text-[11px] font-mono font-medium">
+          <span className="px-2 py-0.5 rounded-md bg-[#EFE8DC] dark:bg-stone-700/60 text-stone-700 dark:text-stone-300 text-[11px] font-mono font-medium">
             {card.level || 'B2'}
           </span>
           <span className="text-xs text-stone-400 dark:text-stone-500">
@@ -92,10 +92,10 @@ export const CardView: React.FC<CardViewProps> = ({
 
           <button
             onClick={() => onToggleStar(card.id)}
-            className={`p-2 rounded-xl transition-all ${
+            className={`p-2 rounded-xl transition-all cursor-pointer ${
               card.starred
-                ? 'text-amber-500 bg-amber-50 dark:bg-amber-950/50'
-                : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800'
+                ? 'text-amber-500 bg-amber-50/80 dark:bg-amber-950/50'
+                : 'text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 hover:bg-[#F3ECE1] dark:hover:bg-stone-800'
             }`}
             title="收藏此卡片"
           >
@@ -113,18 +113,18 @@ export const CardView: React.FC<CardViewProps> = ({
             </h1>
 
             {/* Pronunciations */}
-            <div className="flex flex-wrap items-center gap-3 mt-2.5">
+            <div className="flex flex-wrap items-center gap-2.5 mt-2.5">
               {card.phoneticUs && (
                 <button
                   type="button"
                   onClick={() => speakEnglish(card.expression, 'us')}
-                  className="group flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-stone-700 dark:text-stone-300 hover:text-amber-700 dark:hover:text-amber-300 transition-all text-xs font-mono"
+                  className="group flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-[#F3ECE1] dark:bg-stone-800 hover:bg-[#F6EBDA] dark:hover:bg-amber-950/40 text-stone-700 dark:text-stone-300 hover:text-amber-800 dark:hover:text-amber-300 transition-all text-xs font-mono cursor-pointer border border-transparent hover:border-amber-300 dark:hover:border-amber-800"
                 >
-                  <span className="font-sans font-bold text-amber-600 dark:text-amber-400 text-[10px]">
+                  <span className="font-sans font-bold text-amber-700 dark:text-amber-400 text-[10px]">
                     US
                   </span>
                   <span>{card.phoneticUs}</span>
-                  <Volume2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                  <Volume2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform text-stone-400 group-hover:text-amber-600" />
                 </button>
               )}
 
@@ -132,13 +132,13 @@ export const CardView: React.FC<CardViewProps> = ({
                 <button
                   type="button"
                   onClick={() => speakEnglish(card.expression, 'uk')}
-                  className="group flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-800 hover:bg-amber-50 dark:hover:bg-amber-950/40 text-stone-700 dark:text-stone-300 hover:text-amber-700 dark:hover:text-amber-300 transition-all text-xs font-mono"
+                  className="group flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-[#F3ECE1] dark:bg-stone-800 hover:bg-[#F6EBDA] dark:hover:bg-amber-950/40 text-stone-700 dark:text-stone-300 hover:text-amber-800 dark:hover:text-amber-300 transition-all text-xs font-mono cursor-pointer border border-transparent hover:border-amber-300 dark:hover:border-amber-800"
                 >
-                  <span className="font-sans font-bold text-amber-600 dark:text-amber-400 text-[10px]">
+                  <span className="font-sans font-bold text-amber-700 dark:text-amber-400 text-[10px]">
                     UK
                   </span>
                   <span>{card.phoneticUk}</span>
-                  <Volume2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                  <Volume2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform text-stone-400 group-hover:text-amber-600" />
                 </button>
               )}
             </div>
@@ -147,7 +147,7 @@ export const CardView: React.FC<CardViewProps> = ({
           {/* Quick Sentence CTA */}
           <button
             onClick={() => onOpenSentenceModal(card)}
-            className="sm:self-center px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-medium text-xs sm:text-sm flex items-center justify-center space-x-1.5 shadow-md shadow-amber-500/25 transition-all hover:scale-105 cursor-pointer shrink-0"
+            className="sm:self-center px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs sm:text-sm flex items-center justify-center space-x-1.5 shadow-sm transition-all cursor-pointer shrink-0 hover:scale-101"
           >
             <PenTool className="w-3.5 h-3.5" />
             <span>造句实战 (AI批改)</span>
@@ -155,9 +155,9 @@ export const CardView: React.FC<CardViewProps> = ({
         </div>
 
         {/* Bilingual Definition Box */}
-        <div className="mt-5 p-4 sm:p-5 rounded-2xl bg-amber-500/10 dark:bg-amber-500/5 border border-amber-500/20 space-y-3">
+        <div className="mt-5 p-4 sm:p-5 rounded-2xl bg-[#FAF6F0] dark:bg-amber-950/25 border border-[#EAE2D6] dark:border-amber-900/50 space-y-3">
           <div>
-            <div className="text-[11px] uppercase tracking-wider text-amber-700 dark:text-amber-400 font-semibold mb-1 flex items-center space-x-1.5">
+            <div className="text-[11px] uppercase tracking-wider text-amber-800 dark:text-amber-400 font-semibold mb-1 flex items-center space-x-1.5">
               <span>🇨🇳 核心中文释义</span>
             </div>
             <p className="text-lg sm:text-xl font-bold text-stone-900 dark:text-stone-100">
@@ -166,7 +166,7 @@ export const CardView: React.FC<CardViewProps> = ({
           </div>
 
           {card.englishDefinition && (
-            <div className="pt-2.5 border-t border-amber-500/15">
+            <div className="pt-2.5 border-t border-[#EAE2D6] dark:border-amber-900/40">
               <div className="text-[11px] uppercase tracking-wider text-stone-500 dark:text-stone-400 font-semibold mb-1 flex items-center justify-between">
                 <span className="flex items-center space-x-1.5">
                   <span>🇬🇧 英文释义 · English Definition</span>
@@ -174,7 +174,7 @@ export const CardView: React.FC<CardViewProps> = ({
                 <button
                   type="button"
                   onClick={() => speakEnglish(card.englishDefinition!)}
-                  className="text-stone-400 hover:text-amber-600 transition-colors p-0.5"
+                  className="text-stone-400 hover:text-amber-700 transition-colors p-0.5 cursor-pointer"
                   title="朗读英文释义"
                 >
                   <Volume2 className="w-3.5 h-3.5" />
@@ -189,35 +189,35 @@ export const CardView: React.FC<CardViewProps> = ({
       </div>
 
       {/* Tabs */}
-      <div className="px-6 border-b border-stone-200 dark:border-stone-800 flex items-center space-x-6 text-sm">
+      <div className="px-6 border-b border-[#EFE8DC] dark:border-stone-800 flex items-center space-x-6 text-sm">
         <button
           onClick={() => setActiveTab('details')}
-          className={`pb-3 font-semibold relative transition-colors ${
+          className={`pb-3 font-semibold relative transition-colors cursor-pointer ${
             activeTab === 'details'
-              ? 'text-amber-600 dark:text-amber-400'
+              ? 'text-amber-800 dark:text-amber-400'
               : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
           }`}
         >
           语境例句与拆解
           {activeTab === 'details' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500 rounded-full" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-600 rounded-full" />
           )}
         </button>
 
         <button
           onClick={() => setActiveTab('sentences')}
-          className={`pb-3 font-semibold relative transition-colors flex items-center space-x-1.5 ${
+          className={`pb-3 font-semibold relative transition-colors flex items-center space-x-1.5 cursor-pointer ${
             activeTab === 'sentences'
-              ? 'text-amber-600 dark:text-amber-400'
+              ? 'text-amber-800 dark:text-amber-400'
               : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
           }`}
         >
           <span>我的造句集</span>
-          <span className="px-1.5 py-0.2 rounded-full text-xs bg-stone-100 dark:bg-stone-800 font-normal">
+          <span className="px-1.5 py-0.2 rounded-full text-xs bg-[#F3ECE1] dark:bg-stone-800 font-normal">
             {card.userSentences?.length || 0}
           </span>
           {activeTab === 'sentences' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500 rounded-full" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-600 rounded-full" />
           )}
         </button>
       </div>
@@ -227,9 +227,9 @@ export const CardView: React.FC<CardViewProps> = ({
         <div className="p-6 sm:p-8 space-y-6">
           {/* Nuance & Cultural Context */}
           {card.nuance && (
-            <div className="p-4 sm:p-5 rounded-2xl bg-stone-50 dark:bg-stone-800/40 border border-stone-200/70 dark:border-stone-800 space-y-2">
-              <div className="flex items-center space-x-2 text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5" />
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF6F0] dark:bg-stone-800/40 border border-[#EAE2D6] dark:border-stone-800 space-y-2">
+              <div className="flex items-center space-x-2 text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                 <span>为什么老外这么说？(Nuance & 深度语境)</span>
               </div>
               <p className="text-sm text-stone-700 dark:text-stone-300 leading-relaxed whitespace-pre-line">
@@ -242,7 +242,7 @@ export const CardView: React.FC<CardViewProps> = ({
           {card.collocations && card.collocations.length > 0 && (
             <div>
               <div className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-2.5 flex items-center space-x-1.5">
-                <Layers className="w-3.5 h-3.5" />
+                <Layers className="w-3.5 h-3.5 text-amber-600" />
                 <span>高频地道搭配 (Collocations)</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -258,10 +258,10 @@ export const CardView: React.FC<CardViewProps> = ({
                     <div
                       key={i}
                       onClick={() => speakEnglish(phrase)}
-                      className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-800 hover:border-amber-300 dark:hover:border-amber-800 cursor-pointer transition-all group flex items-start justify-between"
+                      className="p-3 rounded-xl bg-[#FAF6F0] dark:bg-stone-800/50 border border-[#EAE2D6] dark:border-stone-800 hover:border-amber-400 dark:hover:border-amber-700 cursor-pointer transition-all group flex items-start justify-between"
                     >
                       <div>
-                        <div className="font-semibold text-xs sm:text-sm text-stone-900 dark:text-stone-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                        <div className="font-semibold text-xs sm:text-sm text-stone-900 dark:text-stone-100 group-hover:text-amber-800 dark:group-hover:text-amber-300 transition-colors">
                           {phrase}
                         </div>
                         {translation && (
@@ -282,11 +282,11 @@ export const CardView: React.FC<CardViewProps> = ({
           {card.examples && card.examples.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-3">
-                <div className="text-xs font-bold text-stone-600 dark:text-stone-300 uppercase tracking-wider flex items-center space-x-1.5">
-                  <Quote className="w-3.5 h-3.5 text-amber-500" />
+                <div className="text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider flex items-center space-x-1.5">
+                  <Quote className="w-3.5 h-3.5 text-amber-600" />
                   <span>核心典型应用场景与例句 (Core Scenarios)</span>
                 </div>
-                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/50 dark:border-amber-900/40 font-mono">
+                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#F6EBDA] dark:bg-amber-950/40 text-[#8A4B0F] dark:text-amber-300 border border-amber-200/70 dark:border-amber-800/60 font-mono">
                   精选 {Math.min(card.examples.length, 3)} 个高频典型语境
                 </span>
               </div>
@@ -327,8 +327,8 @@ export const CardView: React.FC<CardViewProps> = ({
 
           {/* Memory Hook */}
           {card.memoryHook && (
-            <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/30 flex items-start space-x-3">
-              <Lightbulb className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <div className="p-4 rounded-2xl bg-[#F6EBDA]/60 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-900/30 flex items-start space-x-3">
+              <Lightbulb className="w-5 h-5 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
               <div>
                 <div className="text-xs font-bold text-amber-900 dark:text-amber-300 uppercase tracking-wider mb-1">
                   助记小妙招 / 词源故事 (Memory Hook)
@@ -351,7 +351,7 @@ export const CardView: React.FC<CardViewProps> = ({
             </h3>
             <button
               onClick={() => onOpenSentenceModal(card)}
-              className="text-xs text-amber-600 dark:text-amber-400 font-semibold hover:underline flex items-center space-x-1"
+              className="text-xs text-amber-800 dark:text-amber-400 font-semibold hover:underline flex items-center space-x-1 cursor-pointer"
             >
               <PenTool className="w-3.5 h-3.5" />
               <span>新建造句</span>
@@ -359,7 +359,7 @@ export const CardView: React.FC<CardViewProps> = ({
           </div>
 
           {!card.userSentences || card.userSentences.length === 0 ? (
-            <div className="py-12 text-center border-2 border-dashed border-stone-200 dark:border-stone-800 rounded-2xl p-6">
+            <div className="py-12 text-center border-2 border-dashed border-[#EAE2D6] dark:border-stone-800 rounded-2xl p-6">
               <PenTool className="w-8 h-8 text-stone-300 dark:text-stone-600 mx-auto mb-2" />
               <p className="text-sm text-stone-500 dark:text-stone-400 font-medium">
                 还没有为此表达造过句
@@ -469,16 +469,16 @@ export const CardView: React.FC<CardViewProps> = ({
                   </div>
 
                   {sent.nativeAlternative && (
-                    <div className="text-xs text-indigo-900 dark:text-indigo-300 bg-indigo-50/70 dark:bg-indigo-950/40 p-3 rounded-xl border border-indigo-200/60 dark:border-indigo-900/40 space-y-1.5">
+                    <div className="text-xs text-[#8A4B0F] dark:text-amber-300 bg-[#F6EBDA]/65 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-200/70 dark:border-amber-900/40 space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <div className="font-semibold text-indigo-700 dark:text-indigo-300">
+                        <div className="font-semibold text-[#8A4B0F] dark:text-amber-300">
                           母语者润色版本：
                         </div>
                         <div className="flex items-center space-x-1">
                           <button
                             type="button"
                             onClick={() => handleOpenAnalysis(sent.nativeAlternative!, '', card.expression)}
-                            className="p-1 px-1.5 rounded bg-white/70 dark:bg-indigo-900/60 hover:bg-white text-indigo-700 dark:text-indigo-300 text-[11px] flex items-center space-x-1 cursor-pointer"
+                            className="p-1 px-1.5 rounded bg-[#FFFEFA] dark:bg-amber-900/60 hover:bg-white text-amber-800 dark:text-amber-300 text-[11px] flex items-center space-x-1 cursor-pointer"
                             title="逐词解析与发音"
                           >
                             <BookOpen className="w-3 h-3" />
@@ -487,7 +487,7 @@ export const CardView: React.FC<CardViewProps> = ({
                           <button
                             type="button"
                             onClick={() => speakEnglish(sent.nativeAlternative!)}
-                            className="p-1 rounded text-indigo-600 dark:text-indigo-400 hover:text-indigo-900"
+                            className="p-1 rounded text-amber-700 dark:text-amber-400 hover:text-amber-900"
                             title="朗读母语版本"
                           >
                             <Volume2 className="w-3.5 h-3.5" />
@@ -508,22 +508,22 @@ export const CardView: React.FC<CardViewProps> = ({
 
       {/* Footer Navigation */}
       {(onNext || onPrev) && (
-        <div className="px-6 py-4 bg-stone-50/50 dark:bg-stone-800/30 border-t border-stone-200 dark:border-stone-800 flex items-center justify-between">
+        <div className="px-6 py-4 bg-[#FAF6F0] dark:bg-stone-800/40 border-t border-[#EFE8DC] dark:border-stone-800 flex items-center justify-between">
           <button
             onClick={onPrev}
             disabled={!onPrev}
-            className="text-xs text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 disabled:opacity-30 disabled:cursor-not-allowed font-medium"
+            className="text-xs text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 disabled:opacity-30 disabled:cursor-not-allowed font-medium cursor-pointer"
           >
             ← 上一个表达
           </button>
           <div className="flex items-center space-x-1.5 text-xs text-stone-400">
             <Clock className="w-3.5 h-3.5" />
-            <span>复习周期：{card.intervalDays}天后</span>
+            <span className="font-mono">复习周期：{card.intervalDays}天后</span>
           </div>
           <button
             onClick={onNext}
             disabled={!onNext}
-            className="text-xs text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 disabled:opacity-30 disabled:cursor-not-allowed font-medium"
+            className="text-xs text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 disabled:opacity-30 disabled:cursor-not-allowed font-medium cursor-pointer"
           >
             下一个表达 →
           </button>

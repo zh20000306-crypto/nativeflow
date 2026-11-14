@@ -9,6 +9,18 @@ const LEGACY_STREAK_KEY = 'linguacraft_streak_v1';
 
 export const AVATAR_OPTIONS = ['🦊', '🎓', '🚀', '🌟', '💡', '🦁', '🦉', '🎨', '⚡', '☕'];
 
+const LIFE_MIGRATION_KEY = 'nativeflow_daily_life_migrated_v1';
+const LEGACY_STARTER_IDS = new Set([
+  'card-call-it-a-day',
+  'card-hit-the-ground-running',
+  'card-play-it-by-ear',
+  'card-silver-lining',
+  'card-touch-base',
+  'card-sleep-on-it',
+  'card-take-a-rain-check',
+  'card-hit-the-spot',
+]);
+
 // Retrieve legacy cards if any to prevent user data loss
 function getLegacyCards(): ExpressionCard[] {
   try {
@@ -16,7 +28,8 @@ function getLegacyCards(): ExpressionCard[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        const customCards = parsed.filter((c: ExpressionCard) => !LEGACY_STARTER_IDS.has(c.id));
+        return [...INITIAL_CARDS, ...customCards];
       }
     }
   } catch (e) {
@@ -54,17 +67,38 @@ export function getAllUsers(): UserAccount[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
+        const needsLifeMigration = !localStorage.getItem(LIFE_MIGRATION_KEY);
         const initialMap = new Map(INITIAL_CARDS.map((c) => [c.id, c]));
-        return parsed.map((user: UserAccount) => ({
-          ...user,
-          cards: (user.cards || []).map((card) => {
-            const initial = initialMap.get(card.id);
-            if (initial && initial.englishDefinition && !card.englishDefinition) {
-              return { ...card, englishDefinition: initial.englishDefinition };
-            }
-            return card;
-          }),
-        }));
+
+        const migratedUsers = parsed.map((user: UserAccount) => {
+          let userCards = user.cards || [];
+
+          if (needsLifeMigration) {
+            // Keep only custom user-added cards that are not old starter cards
+            const customCards = userCards.filter((c) => !LEGACY_STARTER_IDS.has(c.id));
+            userCards = [...INITIAL_CARDS, ...customCards];
+          } else {
+            userCards = userCards.map((card) => {
+              const initial = initialMap.get(card.id);
+              if (initial && initial.englishDefinition && !card.englishDefinition) {
+                return { ...card, englishDefinition: initial.englishDefinition };
+              }
+              return card;
+            });
+          }
+
+          return {
+            ...user,
+            cards: userCards,
+          };
+        });
+
+        if (needsLifeMigration) {
+          localStorage.setItem(LIFE_MIGRATION_KEY, '1');
+          saveAllUsers(migratedUsers);
+        }
+
+        return migratedUsers;
       }
     }
   } catch (e) {
@@ -73,6 +107,7 @@ export function getAllUsers(): UserAccount[] {
 
   // First time initialization
   const initialUsers = [DEFAULT_USER];
+  localStorage.setItem(LIFE_MIGRATION_KEY, '1');
   saveAllUsers(initialUsers);
   return initialUsers;
 }
